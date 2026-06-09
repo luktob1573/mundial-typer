@@ -1,39 +1,40 @@
 import streamlit as st
 import requests
+from datetime import datetime
 
 # --- KONFIGURACJA CHMURY (JSONBin.io) ---
-# Te dane aplikacja sama bezpiecznie pobierze z "Advanced settings" w Streamlit Cloud
-BIN_ID = st.secrets["BIN_ID"]
-API_KEY = st.secrets["API_KEY"]
-URL = f"https://api.jsonbin.io/v3/b/6a280281da38895dfe9ff2d4"
+# Wklej swoje klucze pomiędzy cudzysłowy poniżej:
+BIN_ID = "6a280281da38895dfe9ff2d4" 
+API_KEY = "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm"
+
+URL = f"https://api.jsonbin.io/v3/b/{BIN_ID}"
 HEADERS = {
     "X-Master-Key": "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm",
     "Content-Type": "application/json"
 }
 
-# --- BAZA MECZÓW (Tutaj możesz wpisać realne mecze przed turniejem) ---
+# --- BAZA MECZÓW Z DATAMI ---
+# Ważne: Format daty musi wyglądać dokładnie tak: RRRR-MM-DD
 MATCHES = {
-    "Mecz 1: Polska vs Argentyna": {"home": "Polska", "away": "Argentyna"},
-    "Mecz 2: Brazylia vs Niemcy": {"home": "Brazylia", "away": "Niemcy"},
-    "Mecz 3: Francja vs Włochy": {"home": "Francja", "away": "Włochy"}
+    "Meksyk vs Polska": {"date": "2026-06-11", "home": "Meksyk", "away": "Polska"},
+    "USA vs Walia": {"date": "2026-06-12", "home": "USA", "away": "Walia"},
+    "Argentyna vs Arabia": {"date": "2026-06-12", "home": "Argentyna", "away": "Arabia"},
+    "Francja vs Dania": {"date": "2026-06-13", "home": "Francja", "away": "Dania"},
+    "Hiszpania vs Portugalia": {"date": "2026-06-14", "home": "Hiszpania", "away": "Portugalia"}
 }
 
-# Funkcja do pobierania typów z internetowej bazy danych
 def load_data():
     try:
-        response = requests.get(URL, headers={"X-Master-Key": "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm"})
+        response = requests.get(URL, headers={"X-Master-Key": API_KEY})
         return response.json()["record"]
     except Exception:
         return {"results": {}, "bets": {}}
 
-# Funkcja do zapisywania typów w internetowej bazie danych
 def save_data(data):
     requests.put(URL, json=data, headers=HEADERS)
 
-# Ładujemy aktualne dane na start aplikacji
 data = load_data()
 
-# Logika liczenia punktów (3 pkt za dokładny wynik, 1 pkt za trafienie zwycięzcy/remisu)
 def calculate_points(bet_home, bet_away, res_home, res_away):
     if res_home is None or res_away is None: return 0
     if bet_home == res_home and bet_away == res_away: return 3
@@ -42,33 +43,45 @@ def calculate_points(bet_home, bet_away, res_home, res_away):
        (bet_home == bet_away and res_home == res_away): return 1
     return 0
 
-# Ustawienia wyglądu strony
 st.set_page_config(page_title="Rodzinny Typer", page_icon="⚽", layout="centered")
 st.title("⚽ Rodzinny Typer Mundialowy")
 
-# Podział aplikacji na 3 zakładki
+# --- AUTOMATYKA DAT ---
+# Pobieramy dzisiejszą datę w formacie tekstowym, np. "2026-06-11"
+dzisiejsza_data = datetime.now().strftime("%Y-%m-%d")
+st.write(f"📅 *Dzisiejsza data w systemie: **{dzisiejsza_data}***")
+
 tab1, tab2, tab3 = st.tabs(["🎯 Typuj", "🏆 Tabela", "⚙️ Admin"])
 
 # --- ZAKŁADKA 1: TYPOWANIE ---
 with tab1:
     st.header("Oddaj swoje typy")
+    st.info("💡 Poniżej widzisz tylko mecze na dziś i kolejne dni. Minione spotkania znikają automatycznie!")
+    
     user_name = st.text_input("Kim jesteś? (Wpisz swoje imię):").strip()
     if user_name:
         if user_name not in data["bets"]: data["bets"][user_name] = {}
         
-        for match_id, teams in MATCHES.items():
-            st.markdown(f"### {match_id}")
-            current_bet = data["bets"][user_name].get(match_id, [0, 0])
-            col1, col2 = st.columns(2)
-            with col1: score_home = st.number_input(f"Gole {teams['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
-            with col2: score_away = st.number_input(f"Gole {teams['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
-            data["bets"][user_name][match_id] = [score_home, score_away]
-            
-        if st.button("Zapisz typy 💾"):
-            save_data(data)
-            st.success("Zapisano! Twoje typy są bezpieczne. Możesz sprawdzić tabelę.")
+        licznik_meczow = 0
+        for match_id, match_info in MATCHES.items():
+            # Warunek: Pokaż mecz TYLKO jeśli jego data jest dzisiejsza lub w przyszłości
+            if match_info["date"] >= dzisiejsza_data:
+                licznik_meczow += 1
+                st.markdown(f"### 📅 {match_info['date']} | {match_id}")
+                current_bet = data["bets"][user_name].get(match_id, [0, 0])
+                col1, col2 = st.columns(2)
+                with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
+                with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
+                data["bets"][user_name][match_id] = [score_home, score_away]
+                
+        if licznik_meczow > 0:
+            if st.button("Zapisz typy 💾"):
+                save_data(data)
+                st.success("Zapisano! Twoje typy są bezpieczne.")
+        else:
+            st.success("Turniej się zakończył! Brak meczów do typowania.")
 
-# --- ZAKŁADKA 2: TABELA WYNIKÓW ---
+# --- ZAKŁADKA 2: TABELA ---
 with tab2:
     st.header("📊 Tabela Rodzinna")
     leaderboard = {}
@@ -80,19 +93,22 @@ with tab2:
         medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
         st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt`")
 
-# --- ZAKŁADKA 3: PANEL ADMINISTRATORA ---
+# --- ZAKŁADKA 3: ADMIN ---
 with tab3:
     st.header("⚙️ Wpisz wyniki (Admin)")
-    # Hasło chroniące przed przypadkową zmianą wyników przez innych domowników
+    st.info("💡 Tutaj widzisz tylko mecze dzisiejsze oraz te, które już się zakończyły, abyś mógł wpisać wyniki.")
+    
     if st.text_input("Hasło:", type="password") == "rodzina2026":
-        for match_id, teams in MATCHES.items():
-            st.markdown(f"### {match_id}")
-            current_res = data["results"].get(match_id, [0, 0])
-            col1, col2 = st.columns(2)
-            with col1: res_h = st.number_input(f"Wynik {teams['home']}", 0, 20, int(current_res[0]), key=f"rh_{match_id}")
-            with col2: res_a = st.number_input(f"Wynik {teams['away']}", 0, 20, int(current_res[1]), key=f"ra_{match_id}")
-            data["results"][match_id] = [res_h, res_a]
-            
+        for match_id, match_info in MATCHES.items():
+            # Warunek: Pokaż mecz TYLKO jeśli jego data to dziś lub minęła
+            if match_info["date"] <= dzisiejsza_data:
+                st.markdown(f"### 📅 {match_info['date']} | {match_id}")
+                current_res = data["results"].get(match_id, [0, 0])
+                col1, col2 = st.columns(2)
+                with col1: res_h = st.number_input(f"Wynik {match_info['home']}", 0, 20, int(current_res[0]), key=f"rh_{match_id}")
+                with col2: res_a = st.number_input(f"Wynik {match_info['away']}", 0, 20, int(current_res[1]), key=f"ra_{match_id}")
+                data["results"][match_id] = [res_h, res_a]
+                
         if st.button("Aktualizuj oficjalne wyniki 📣"):
             save_data(data)
             st.success("Oficjalne wyniki zapisane! Tabela została automatycznie przeliczona.")
