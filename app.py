@@ -248,3 +248,11 @@ with tab3:
         if st.button("Aktualizuj oficjalne wyniki 📣"):
             save_data(data)
             st.success("Oficjalne wyniki zapisane! Tabela została zaktualizowana.")
+            # --- DODATKOWY PRZYCISK RESETU ---
+        st.markdown("---")
+        st.subheader("🚨 Strefa Awaryjna")
+        if st.button("WYSERUJ CAŁY TURNIEJ (Usuń typy i wyniki) 🧹"):
+            czyste_dane = {"results": {}, "bets": {}}
+            save_data(czyste_dane)
+            st.warning("Wszystkie dane zostały wymazane! Tabela jest czysta.")
+            st.rerun()
