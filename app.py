@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 from datetime import datetime, timedelta
+
+# --- KONFIGURACJA CHMURY (JSONBin.io) ---
+# Wklej swoje klucze pomiędzy cudzysłowy poniżej:
 BIN_ID = "6a280281da38895dfe9ff2d4"
 API_KEY = "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm"
 
@@ -26,10 +29,9 @@ FLAGS = {
     "Anglia": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Chorwacja": "🇭🇷", "Ghana": "🇬🇭", "Panama": "🇵🇦", "Polska": "🇵🇱"
 }
 
-# --- BAZA MECZÓW Z DATAMI ---
+# --- BAZA MECZÓW Z DATAMI I GODZINAMI (Czas Warszawski - TVP Sport) ---
 MATCHES = {
-     "cks vs real madryt": {"date": "2026-06-09", "time": "23:05", "home": "cks", "away": "real madryt"},
-    # 1. KOLEJKA
+    "CKS vs Real madrit": {"date": "2026-06-09", "time": "21:00", "home": "CKS", "away": "Real madrit"}, 
     "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-12", "time": "04:00", "home": "Korea Płd.", "away": "Czechy"},
     "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "time": "21:00", "home": "Kanada", "away": "Bośnia i Herc."},
@@ -54,8 +56,6 @@ MATCHES = {
     "Anglia vs Chorwacja": {"date": "2026-06-17", "time": "22:00", "home": "Anglia", "away": "Chorwacja"},
     "Ghana vs Panama": {"date": "2026-06-18", "time": "01:00", "home": "Ghana", "away": "Panama"},
     "Uzbekistan vs Kolumbia": {"date": "2026-06-18", "time": "04:00", "home": "Uzbekistan", "away": "Kolumbia"},
-
-    # 2. KOLEJKA
     "Czechy vs RPA": {"date": "2026-06-18", "time": "18:00", "home": "Czechy", "away": "RPA"},
     "Szwajcaria vs Bośnia i Herc.": {"date": "2026-06-18", "time": "21:00", "home": "Szwajcaria", "away": "Bośnia i Herc."},
     "Kanada vs Katar": {"date": "2026-06-19", "time": "00:00", "home": "Kanada", "away": "Katar"},
@@ -80,8 +80,6 @@ MATCHES = {
     "Anglia vs Ghana": {"date": "2026-06-23", "time": "22:00", "home": "Anglia", "away": "Ghana"},
     "Panama vs Chorwacja": {"date": "2026-06-24", "time": "01:00", "home": "Panama", "away": "Chorwacja"},
     "Kolumbia vs DR Konga": {"date": "2026-06-24", "time": "04:00", "home": "Kolumbia", "away": "DR Konga"},
-
-    # 3. KOLEJKA
     "Szwajcaria vs Kanada": {"date": "2026-06-24", "time": "21:00", "home": "Szwajcaria", "away": "Kanada"},
     "Bośnia i Herc. vs Katar": {"date": "2026-06-24", "time": "21:00", "home": "Bośnia i Herc.", "away": "Katar"},
     "Maroko vs Haiti": {"date": "2026-06-25", "time": "00:00", "home": "Maroko", "away": "Haiti"},
@@ -132,6 +130,7 @@ def calculate_points(bet_home, bet_away, res_home, res_away):
     return 0
 
 st.set_page_config(page_title="Rodzinny Typer", page_icon="⚽", layout="centered")
+
 # --- NOWOCZESNE TŁO I WYGLĄD (CSS) ---
 page_bg_img = """
 <style>
@@ -144,7 +143,6 @@ page_bg_img = """
 [data-testid="stHeader"] {
     background: rgba(0,0,0,0);
 }
-/* Lekkie zaokrąglenie i tło dla zakładek, żeby lepiej się klikało */
 .stTabs [data-baseweb="tab-list"] {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
@@ -153,20 +151,22 @@ page_bg_img = """
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
+
 st.title("⚽ Rodzinny Typer Mundialowy")
 
-# --- OBLICZANIE DAT (Dziś i Jutro) ---
-dzisiaj_obj = datetime.now().date()
+# --- OBLICZANIE CZASU DLA POLSKI ---
+# Chmura domyślnie działa w czasie UTC. Zwiększamy o 2h, aby dopasować do polskiego czasu letniego.
+czas_polska = datetime.utcnow() + timedelta(hours=2)
+dzisiaj_obj = czas_polska.date()
 jutro_obj = dzisiaj_obj + timedelta(days=1)
 
 st.write(f"📅 *Mecze dostępne na: **{dzisiaj_obj.strftime('%d.%m')}** oraz **{jutro_obj.strftime('%d.%m')}***")
 
 tab1, tab2, tab3 = st.tabs(["🎯 Typuj", "🏆 Tabela", "⚙️ Admin"])
 
-# --- ZAKŁADKA 1: TYPOWANIE ---
 with tab1:
     st.header("Oddaj swoje typy")
-    st.info("💡 Widzisz tutaj wyłącznie mecze, które odbywają się dzisiaj i jutro.")
+    st.info("💡 Pamiętaj: typowanie jest zablokowane od momentu rozpoczęcia meczu!")
     
     user_name = st.text_input("Kim jesteś? (Wpisz swoje imię):").strip()
     if user_name:
@@ -174,24 +174,28 @@ with tab1:
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
-            # Zmiana: Parowanie daty meczu
             match_date_obj = datetime.strptime(match_info["date"], "%Y-%m-%d").date()
+            # Łączymy datę i godzinę meczu do precyzyjnego porównania
+            match_datetime_obj = datetime.strptime(f"{match_info['date']} {match_info['time']}", "%Y-%m-%d %H:%M")
             
-            # Warunek: Pokaż tylko jeśli data meczu to dzisiaj LUB jutro
             if dzisiaj_obj <= match_date_obj <= jutro_obj:
                 licznik_meczow += 1
-                
-                # Pobieranie flag
                 flaga_h = FLAGS.get(match_info['home'], "🏳️")
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
-                st.markdown(f"### 📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
+                st.markdown(f"### 📅 {match_info['date']} ⏰ {match_info['time']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
                 
                 current_bet = data["bets"][user_name].get(match_id, [0, 0])
-                col1, col2 = st.columns(2)
-                with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
-                with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
-                data["bets"][user_name][match_id] = [score_home, score_away]
+                
+                # BLOKADA CZASOWA
+                if czas_polska < match_datetime_obj:
+                    col1, col2 = st.columns(2)
+                    with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
+                    with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
+                    data["bets"][user_name][match_id] = [score_home, score_away]
+                else:
+                    st.error("⏳ Mecz już się rozpoczął (lub zakończył). Typowanie zablokowane.")
+                    st.info(f"Twój zapisany typ to: **{int(current_bet[0])} : {int(current_bet[1])}**")
                 
         if licznik_meczow > 0:
             if st.button("Zapisz typy 💾"):
@@ -200,7 +204,6 @@ with tab1:
         else:
             st.success("Aktualnie brak meczów do typowania na dziś i jutro!")
 
-# --- ZAKŁADKA 2: TABELA WYNIKÓW ---
 with tab2:
     st.header("📊 Tabela Rodzinna")
     leaderboard = {}
@@ -225,19 +228,17 @@ with tab2:
     else:
         st.info("Brak punktów w tabeli. Oddajcie pierwsze typy!")
 
-# --- ZAKŁADKA 3: PANEL ADMINA ---
 with tab3:
     st.header("⚙️ Wpisz wyniki (Admin)")
     if st.text_input("Hasło:", type="password") == "rodzina2026":
         for match_id, match_info in MATCHES.items():
             match_date_obj = datetime.strptime(match_info["date"], "%Y-%m-%d").date()
             
-            # W panelu admina pokazujemy mecze od dzisiaj w dół (minione)
             if match_date_obj <= dzisiaj_obj:
                 flaga_h = FLAGS.get(match_info['home'], "🏳️")
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
-                st.markdown(f"### 📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
+                st.markdown(f"### 📅 {match_info['date']} ⏰ {match_info['time']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
                 
                 current_res = data["results"].get(match_id, [0, 0])
                 col1, col2 = st.columns(2)
@@ -248,10 +249,11 @@ with tab3:
         if st.button("Aktualizuj oficjalne wyniki 📣"):
             save_data(data)
             st.success("Oficjalne wyniki zapisane! Tabela została zaktualizowana.")
-            # --- DODATKOWY PRZYCISK RESETU ---
+            
+        # --- DODATKOWY PRZYCISK RESETU ---
         st.markdown("---")
         st.subheader("🚨 Strefa Awaryjna")
-        if st.button("WYSERUJ CAŁY TURNIEJ (Usuń typy i wyniki) 🧹"):
+        if st.button("WYZERUJ CAŁY TURNIEJ (Usuń typy i wyniki) 🧹"):
             czyste_dane = {"results": {}, "bets": {}}
             save_data(czyste_dane)
             st.warning("Wszystkie dane zostały wymazane! Tabela jest czysta.")
