@@ -107,7 +107,6 @@ MATCHES = {
     "Jordania vs Argentyna": {"date": "2026-06-28", "time": "04:00", "home": "Jordania", "away": "Argentyna"},
     "Algieria vs Austria": {"date": "2026-06-28", "time": "04:00", "home": "Algieria", "away": "Austria"}
 }
-}
 
 def load_data():
     try:
