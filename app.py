@@ -7,7 +7,7 @@ BIN_ID = st.secrets["BIN_ID"]
 API_KEY = st.secrets["API_KEY"]
 URL = f"https://api.jsonbin.io/v3/b/6a280281da38895dfe9ff2d4"
 HEADERS = {
-    "X-Master-Key": $2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm,
+    "X-Master-Key": "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm",
     "Content-Type": "application/json"
 }
 
@@ -21,7 +21,7 @@ MATCHES = {
 # Funkcja do pobierania typów z internetowej bazy danych
 def load_data():
     try:
-        response = requests.get(URL, headers={"X-Master-Key": $2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm})
+        response = requests.get(URL, headers={"X-Master-Key": "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm"})
         return response.json()["record"]
     except Exception:
         return {"results": {}, "bets": {}}
