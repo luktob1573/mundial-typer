@@ -1,4 +1,4 @@
-import srteamlit as st
+import streamlit as st
 import requests
 from datetime import datetime, timedelta
 BIN_ID = "6a280281da38895dfe9ff2d4"
