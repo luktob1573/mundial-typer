@@ -16,13 +16,104 @@ HEADERS = {
 # --- BAZA MECZÓW Z DATAMI ---
 # Ważne: Format daty musi wyglądać dokładnie tak: RRRR-MM-DD
 MATCHES = {
-    "Meksyk vs Polska": {"date": "2026-06-11", "home": "Meksyk", "away": "Polska"},
-    "USA vs Walia": {"date": "2026-06-12", "home": "USA", "away": "Walia"},
-    "Argentyna vs Arabia": {"date": "2026-06-12", "home": "Argentyna", "away": "Arabia"},
-    "Francja vs Dania": {"date": "2026-06-13", "home": "Francja", "away": "Dania"},
-    "Hiszpania vs Portugalia": {"date": "2026-06-14", "home": "Hiszpania", "away": "Portugalia"}
+    # Grupa A
+    "Meksyk vs RPA": {"date": "2026-06-11", "home": "Meksyk", "away": "RPA"},
+    "Korea Płd. vs Czechy": {"date": "2026-06-11", "home": "Korea Płd.", "away": "Czechy"},
+    "Meksyk vs Korea Płd.": {"date": "2026-06-18", "home": "Meksyk", "away": "Korea Płd."},
+    "Czechy vs RPA": {"date": "2026-06-18", "home": "Czechy", "away": "RPA"},
+    "Czechy vs Meksyk": {"date": "2026-06-24", "home": "Czechy", "away": "Meksyk"},
+    "RPA vs Korea Płd.": {"date": "2026-06-24", "home": "RPA", "away": "Korea Płd."},
+
+    # Grupa B
+    "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "home": "Kanada", "away": "Bośnia i Herc."},
+    "Katar vs Szwajcaria": {"date": "2026-06-13", "home": "Katar", "away": "Szwajcaria"},
+    "Kanada vs Katar": {"date": "2026-06-18", "home": "Kanada", "away": "Katar"},
+    "Szwajcaria vs Bośnia i Herc.": {"date": "2026-06-18", "home": "Szwajcaria", "away": "Bośnia i Herc."},
+    "Szwajcaria vs Kanada": {"date": "2026-06-24", "home": "Szwajcaria", "away": "Kanada"},
+    "Bośnia i Herc. vs Katar": {"date": "2026-06-24", "home": "Bośnia i Herc.", "away": "Katar"},
+
+    # Grupa C
+    "Brazylia vs Maroko": {"date": "2026-06-13", "home": "Brazylia", "away": "Maroko"},
+    "Haiti vs Szkocja": {"date": "2026-06-14", "home": "Haiti", "away": "Szkocja"},
+    "Brazylia vs Haiti": {"date": "2026-06-19", "home": "Brazylia", "away": "Haiti"},
+    "Szkocja vs Maroko": {"date": "2026-06-19", "home": "Szkocja", "away": "Maroko"},
+    "Szkocja vs Brazylia": {"date": "2026-06-25", "home": "Szkocja", "away": "Brazylia"},
+    "Maroko vs Haiti": {"date": "2026-06-25", "home": "Maroko", "away": "Haiti"},
+
+    # Grupa D
+    "USA vs Paragwaj": {"date": "2026-06-13", "home": "USA", "away": "Paragwaj"},
+    "Australia vs Turcja": {"date": "2026-06-14", "home": "Australia", "away": "Turcja"},
+    "USA vs Australia": {"date": "2026-06-19", "home": "USA", "away": "Australia"},
+    "Turcja vs Paragwaj": {"date": "2026-06-19", "home": "Turcja", "away": "Paragwaj"},
+    "Turcja vs USA": {"date": "2026-06-25", "home": "Turcja", "away": "USA"},
+    "Paragwaj vs Australia": {"date": "2026-06-25", "home": "Paragwaj", "away": "Australia"},
+
+    # Grupa E
+    "Niemcy vs Curacao": {"date": "2026-06-14", "home": "Niemcy", "away": "Curacao"},
+    "WKS vs Ekwador": {"date": "2026-06-15", "home": "WKS", "away": "Ekwador"},
+    "Niemcy vs WKS": {"date": "2026-06-20", "home": "Niemcy", "away": "WKS"},
+    "Ekwador vs Curacao": {"date": "2026-06-20", "home": "Ekwador", "away": "Curacao"},
+    "Ekwador vs Niemcy": {"date": "2026-06-25", "home": "Ekwador", "away": "Niemcy"},
+    "Curacao vs WKS": {"date": "2026-06-25", "home": "Curacao", "away": "WKS"},
+
+    # Grupa F
+    "Holandia vs Japonia": {"date": "2026-06-14", "home": "Holandia", "away": "Japonia"},
+    "Szwecja vs Tunezja": {"date": "2026-06-15", "home": "Szwecja", "away": "Tunezja"},
+    "Holandia vs Szwecja": {"date": "2026-06-20", "home": "Holandia", "away": "Szwecja"},
+    "Tunezja vs Japonia": {"date": "2026-06-20", "home": "Tunezja", "away": "Japonia"},
+    "Tunezja vs Holandia": {"date": "2026-06-26", "home": "Tunezja", "away": "Holandia"},
+    "Japonia vs Szwecja": {"date": "2026-06-26", "home": "Japonia", "away": "Szwecja"},
+
+    # Grupa G
+    "Belgia vs Egipt": {"date": "2026-06-15", "home": "Belgia", "away": "Egipt"},
+    "Iran vs Nowa Zelandia": {"date": "2026-06-16", "home": "Iran", "away": "Nowa Zelandia"},
+    "Belgia vs Iran": {"date": "2026-06-21", "home": "Belgia", "away": "Iran"},
+    "Nowa Zelandia vs Egipt": {"date": "2026-06-21", "home": "Nowa Zelandia", "away": "Egipt"},
+    "Nowa Zelandia vs Belgia": {"date": "2026-06-26", "home": "Nowa Zelandia", "away": "Belgia"},
+    "Egipt vs Iran": {"date": "2026-06-26", "home": "Egipt", "away": "Iran"},
+
+    # Grupa H
+    "Hiszpania vs Rep. Z. Przyl.": {"date": "2026-06-15", "home": "Hiszpania", "away": "Rep. Z. Przyl."},
+    "Arabia Saud. vs Urugwaj": {"date": "2026-06-16", "home": "Arabia Saud.", "away": "Urugwaj"},
+    "Hiszpania vs Arabia Saud.": {"date": "2026-06-21", "home": "Hiszpania", "away": "Arabia Saud."},
+    "Urugwaj vs Rep. Z. Przyl.": {"date": "2026-06-21", "home": "Urugwaj", "away": "Rep. Z. Przyl."},
+    "Urugwaj vs Hiszpania": {"date": "2026-06-27", "home": "Urugwaj", "away": "Hiszpania"},
+    "Rep. Z. Przyl. vs Arabia Saud.": {"date": "2026-06-27", "home": "Rep. Z. Przyl.", "away": "Arabia Saud."},
+
+    # Grupa I
+    "Francja vs Senegal": {"date": "2026-06-16", "home": "Francja", "away": "Senegal"},
+    "Irak vs Norwegia": {"date": "2026-06-17", "home": "Irak", "away": "Norwegia"},
+    "Francja vs Irak": {"date": "2026-06-22", "home": "Francja", "away": "Irak"},
+    "Norwegia vs Senegal": {"date": "2026-06-22", "home": "Norwegia", "away": "Senegal"},
+    "Norwegia vs Francja": {"date": "2026-06-26", "home": "Norwegia", "away": "Francja"},
+    "Senegal vs Irak": {"date": "2026-06-26", "home": "Senegal", "away": "Irak"},
+
+    # Grupa J
+    "Argentyna vs Algieria": {"date": "2026-06-17", "home": "Argentyna", "away": "Algieria"},
+    "Austria vs Jordania": {"date": "2026-06-17", "home": "Austria", "away": "Jordania"},
+    "Argentyna vs Austria": {"date": "2026-06-22", "home": "Argentyna", "away": "Austria"},
+    "Jordania vs Algieria": {"date": "2026-06-22", "home": "Jordania", "away": "Algieria"},
+    "Jordania vs Argentyna": {"date": "2026-06-27", "home": "Jordania", "away": "Argentyna"},
+    "Algieria vs Austria": {"date": "2026-06-27", "home": "Algieria", "away": "Austria"},
+
+    # Grupa K
+    "Portugalia vs DR Konga": {"date": "2026-06-17", "home": "Portugalia", "away": "DR Konga"},
+    "Uzbekistan vs Kolumbia": {"date": "2026-06-18", "home": "Uzbekistan", "away": "Kolumbia"},
+    "Portugalia vs Uzbekistan": {"date": "2026-06-23", "home": "Portugalia", "away": "Uzbekistan"},
+    "Kolumbia vs DR Konga": {"date": "2026-06-23", "home": "Kolumbia", "away": "DR Konga"},
+    "Kolumbia vs Portugalia": {"date": "2026-06-28", "home": "Kolumbia", "away": "Portugalia"},
+    "DR Konga vs Uzbekistan": {"date": "2026-06-28", "home": "DR Konga", "away": "Uzbekistan"},
+
+    # Grupa L
+    "Anglia vs Chorwacja": {"date": "2026-06-17", "home": "Anglia", "away": "Chorwacja"},
+    "Ghana vs Panama": {"date": "2026-06-18", "home": "Ghana", "away": "Panama"},
+    "Anglia vs Ghana": {"date": "2026-06-23", "home": "Anglia", "away": "Ghana"},
+    "Panama vs Chorwacja": {"date": "2026-06-23", "home": "Panama", "away": "Chorwacja"},
+    "Panama vs Anglia": {"date": "2026-06-28", "home": "Panama", "away": "Anglia"},
+    "Chorwacja vs Ghana": {"date": "2026-06-28", "home": "Chorwacja", "away": "Ghana"}
 }
 
+                           
 def load_data():
     try:
         response = requests.get(URL, headers={"X-Master-Key": API_KEY})
