@@ -113,11 +113,14 @@ MATCHES = {
     "Chorwacja vs Ghana": {"date": "2026-06-28", "home": "Chorwacja", "away": "Ghana"}
 }
 
-                           
 def load_data():
     try:
         response = requests.get(URL, headers={"X-Master-Key": API_KEY})
-        return response.json()["record"]
+        record = response.json().get("record", {})
+        # BEZPIECZNIK: Upewniamy się, że struktura zawsze istnieje
+        if "bets" not in record: record["bets"] = {}
+        if "results" not in record: record["results"] = {}
+        return record
     except Exception:
         return {"results": {}, "bets": {}}
 
@@ -137,8 +140,6 @@ def calculate_points(bet_home, bet_away, res_home, res_away):
 st.set_page_config(page_title="Rodzinny Typer", page_icon="⚽", layout="centered")
 st.title("⚽ Rodzinny Typer Mundialowy")
 
-# --- AUTOMATYKA DAT ---
-# Pobieramy dzisiejszą datę w formacie tekstowym, np. "2026-06-11"
 dzisiejsza_data = datetime.now().strftime("%Y-%m-%d")
 st.write(f"📅 *Dzisiejsza data w systemie: **{dzisiejsza_data}***")
 
@@ -147,7 +148,7 @@ tab1, tab2, tab3 = st.tabs(["🎯 Typuj", "🏆 Tabela", "⚙️ Admin"])
 # --- ZAKŁADKA 1: TYPOWANIE ---
 with tab1:
     st.header("Oddaj swoje typy")
-    st.info("💡 Poniżej widzisz tylko mecze na dziś i kolejne dni. Minione spotkania znikają automatycznie!")
+    st.info("💡 Widzisz tylko mecze na dziś i kolejne dni.")
     
     user_name = st.text_input("Kim jesteś? (Wpisz swoje imię):").strip()
     if user_name:
@@ -155,7 +156,6 @@ with tab1:
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
-            # Warunek: Pokaż mecz TYLKO jeśli jego data jest dzisiejsza lub w przyszłości
             if match_info["date"] >= dzisiejsza_data:
                 licznik_meczow += 1
                 st.markdown(f"### 📅 {match_info['date']} | {match_id}")
@@ -170,28 +170,39 @@ with tab1:
                 save_data(data)
                 st.success("Zapisano! Twoje typy są bezpieczne.")
         else:
-            st.success("Turniej się zakończył! Brak meczów do typowania.")
+            st.success("Brak meczów do typowania.")
 
-# --- ZAKŁADKA 2: TABELA ---
+# --- ZAKŁADKA 2: TABELA WYNIKÓW ---
 with tab2:
     st.header("📊 Tabela Rodzinna")
     leaderboard = {}
-    for user, bets in data["bets"].items():
-        pts = sum(calculate_points(b[0], b[1], data["results"].get(m, [None])[0], data["results"].get(m, [None, None])[1]) for m, b in bets.items() if m in data["results"])
+    
+    # Super-bezpieczne odczytywanie danych, które likwiduje KeyError
+    bets_data = data.get("bets", {})
+    results_data = data.get("results", {})
+    
+    for user, user_bets in bets_data.items():
+        pts = 0
+        for match_id, bet in user_bets.items():
+            if match_id in results_data:
+                res = results_data[match_id]
+                if isinstance(res, list) and len(res) == 2 and isinstance(bet, list) and len(bet) == 2:
+                    pts += calculate_points(bet[0], bet[1], res[0], res[1])
         leaderboard[user] = pts
         
-    for idx, (player, pts) in enumerate(sorted(leaderboard.items(), key=lambda x: x[1], reverse=True), 1):
-        medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
-        st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt`")
+    sorted_leaderboard = sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
+    if sorted_leaderboard:
+        for idx, (player, pts) in enumerate(sorted_leaderboard, 1):
+            medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
+            st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt`")
+    else:
+        st.info("Brak punktów w tabeli. Oddajcie pierwsze typy!")
 
-# --- ZAKŁADKA 3: ADMIN ---
+# --- ZAKŁADKA 3: PANEL ADMINA ---
 with tab3:
     st.header("⚙️ Wpisz wyniki (Admin)")
-    st.info("💡 Tutaj widzisz tylko mecze dzisiejsze oraz te, które już się zakończyły, abyś mógł wpisać wyniki.")
-    
     if st.text_input("Hasło:", type="password") == "rodzina2026":
         for match_id, match_info in MATCHES.items():
-            # Warunek: Pokaż mecz TYLKO jeśli jego data to dziś lub minęła
             if match_info["date"] <= dzisiejsza_data:
                 st.markdown(f"### 📅 {match_info['date']} | {match_id}")
                 current_res = data["results"].get(match_id, [0, 0])
@@ -202,4 +213,4 @@ with tab3:
                 
         if st.button("Aktualizuj oficjalne wyniki 📣"):
             save_data(data)
-            st.success("Oficjalne wyniki zapisane! Tabela została automatycznie przeliczona.")
+            st.success("Oficjalne wyniki zapisane! Tabela została zaktualizowana.")
