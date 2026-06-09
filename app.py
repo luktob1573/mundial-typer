@@ -29,78 +29,84 @@ FLAGS = {
 # --- BAZA MECZÓW Z DATAMI ---
 MATCHES = {
      "cks vs real madryt": {"date": "2026-06-09", "home": "cks", "away": "real madryt"},
-    "Meksyk vs RPA": {"date": "2026-06-11", "home": "Meksyk", "away": "RPA"},
-    "Korea Płd. vs Czechy": {"date": "2026-06-11", "home": "Korea Płd.", "away": "Czechy"},
-    "Meksyk vs Korea Płd.": {"date": "2026-06-18", "home": "Meksyk", "away": "Korea Płd."},
-    "Czechy vs RPA": {"date": "2026-06-18", "home": "Czechy", "away": "RPA"},
-    "Czechy vs Meksyk": {"date": "2026-06-24", "home": "Czechy", "away": "Meksyk"},
-    "RPA vs Korea Płd.": {"date": "2026-06-24", "home": "RPA", "away": "Korea Płd."},
-    "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "home": "Kanada", "away": "Bośnia i Herc."},
-    "Katar vs Szwajcaria": {"date": "2026-06-13", "home": "Katar", "away": "Szwajcaria"},
-    "Kanada vs Katar": {"date": "2026-06-18", "home": "Kanada", "away": "Katar"},
-    "Szwajcaria vs Bośnia i Herc.": {"date": "2026-06-18", "home": "Szwajcaria", "away": "Bośnia i Herc."},
-    "Szwajcaria vs Kanada": {"date": "2026-06-24", "home": "Szwajcaria", "away": "Kanada"},
-    "Bośnia i Herc. vs Katar": {"date": "2026-06-24", "home": "Bośnia i Herc.", "away": "Katar"},
-    "Brazylia vs Maroko": {"date": "2026-06-13", "home": "Brazylia", "away": "Maroko"},
-    "Haiti vs Szkocja": {"date": "2026-06-14", "home": "Haiti", "away": "Szkocja"},
-    "Brazylia vs Haiti": {"date": "2026-06-19", "home": "Brazylia", "away": "Haiti"},
-    "Szkocja vs Maroko": {"date": "2026-06-19", "home": "Szkocja", "away": "Maroko"},
-    "Szkocja vs Brazylia": {"date": "2026-06-25", "home": "Szkocja", "away": "Brazylia"},
-    "Maroko vs Haiti": {"date": "2026-06-25", "home": "Maroko", "away": "Haiti"},
-    "USA vs Paragwaj": {"date": "2026-06-13", "home": "USA", "away": "Paragwaj"},
-    "Australia vs Turcja": {"date": "2026-06-14", "home": "Australia", "away": "Turcja"},
-    "USA vs Australia": {"date": "2026-06-19", "home": "USA", "away": "Australia"},
-    "Turcja vs Paragwaj": {"date": "2026-06-19", "home": "Turcja", "away": "Paragwaj"},
-    "Turcja vs USA": {"date": "2026-06-25", "home": "Turcja", "away": "USA"},
-    "Paragwaj vs Australia": {"date": "2026-06-25", "home": "Paragwaj", "away": "Australia"},
-    "Niemcy vs Curacao": {"date": "2026-06-14", "home": "Niemcy", "away": "Curacao"},
-    "WKS vs Ekwador": {"date": "2026-06-15", "home": "WKS", "away": "Ekwador"},
-    "Niemcy vs WKS": {"date": "2026-06-20", "home": "Niemcy", "away": "WKS"},
-    "Ekwador vs Curacao": {"date": "2026-06-20", "home": "Ekwador", "away": "Curacao"},
-    "Ekwador vs Niemcy": {"date": "2026-06-25", "home": "Ekwador", "away": "Niemcy"},
-    "Curacao vs WKS": {"date": "2026-06-25", "home": "Curacao", "away": "WKS"},
-    "Holandia vs Japonia": {"date": "2026-06-14", "home": "Holandia", "away": "Japonia"},
-    "Szwecja vs Tunezja": {"date": "2026-06-15", "home": "Szwecja", "away": "Tunezja"},
-    "Holandia vs Szwecja": {"date": "2026-06-20", "home": "Holandia", "away": "Szwecja"},
-    "Tunezja vs Japonia": {"date": "2026-06-20", "home": "Tunezja", "away": "Japonia"},
-    "Tunezja vs Holandia": {"date": "2026-06-26", "home": "Tunezja", "away": "Holandia"},
-    "Japonia vs Szwecja": {"date": "2026-06-26", "home": "Japonia", "away": "Szwecja"},
-    "Belgia vs Egipt": {"date": "2026-06-15", "home": "Belgia", "away": "Egipt"},
-    "Iran vs Nowa Zelandia": {"date": "2026-06-16", "home": "Iran", "away": "Nowa Zelandia"},
-    "Belgia vs Iran": {"date": "2026-06-21", "home": "Belgia", "away": "Iran"},
-    "Nowa Zelandia vs Egipt": {"date": "2026-06-21", "home": "Nowa Zelandia", "away": "Egipt"},
-    "Nowa Zelandia vs Belgia": {"date": "2026-06-26", "home": "Nowa Zelandia", "away": "Belgia"},
-    "Egipt vs Iran": {"date": "2026-06-26", "home": "Egipt", "away": "Iran"},
-    "Hiszpania vs Rep. Z. Przyl.": {"date": "2026-06-15", "home": "Hiszpania", "away": "Rep. Z. Przyl."},
-    "Arabia Saud. vs Urugwaj": {"date": "2026-06-16", "home": "Arabia Saud.", "away": "Urugwaj"},
-    "Hiszpania vs Arabia Saud.": {"date": "2026-06-21", "home": "Hiszpania", "away": "Arabia Saud."},
-    "Urugwaj vs Rep. Z. Przyl.": {"date": "2026-06-21", "home": "Urugwaj", "away": "Rep. Z. Przyl."},
-    "Urugwaj vs Hiszpania": {"date": "2026-06-27", "home": "Urugwaj", "away": "Hiszpania"},
-    "Rep. Z. Przyl. vs Arabia Saud.": {"date": "2026-06-27", "home": "Rep. Z. Przyl.", "away": "Arabia Saud."},
-    "Francja vs Senegal": {"date": "2026-06-16", "home": "Francja", "away": "Senegal"},
-    "Irak vs Norwegia": {"date": "2026-06-17", "home": "Irak", "away": "Norwegia"},
-    "Francja vs Irak": {"date": "2026-06-22", "home": "Francja", "away": "Irak"},
-    "Norwegia vs Senegal": {"date": "2026-06-22", "home": "Norwegia", "away": "Senegal"},
-    "Norwegia vs Francja": {"date": "2026-06-26", "home": "Norwegia", "away": "Francja"},
-    "Senegal vs Irak": {"date": "2026-06-26", "home": "Senegal", "away": "Irak"},
-    "Argentyna vs Algieria": {"date": "2026-06-17", "home": "Argentyna", "away": "Algieria"},
-    "Austria vs Jordania": {"date": "2026-06-17", "home": "Austria", "away": "Jordania"},
-    "Argentyna vs Austria": {"date": "2026-06-22", "home": "Argentyna", "away": "Austria"},
-    "Jordania vs Algieria": {"date": "2026-06-22", "home": "Jordania", "away": "Algieria"},
-    "Jordania vs Argentyna": {"date": "2026-06-27", "home": "Jordania", "away": "Argentyna"},
-    "Algieria vs Austria": {"date": "2026-06-27", "home": "Algieria", "away": "Austria"},
-    "Portugalia vs DR Konga": {"date": "2026-06-17", "home": "Portugalia", "away": "DR Konga"},
-    "Uzbekistan vs Kolumbia": {"date": "2026-06-18", "home": "Uzbekistan", "away": "Kolumbia"},
-    "Portugalia vs Uzbekistan": {"date": "2026-06-23", "home": "Portugalia", "away": "Uzbekistan"},
-    "Kolumbia vs DR Konga": {"date": "2026-06-23", "home": "Kolumbia", "away": "DR Konga"},
-    "Kolumbia vs Portugalia": {"date": "2026-06-28", "home": "Kolumbia", "away": "Portugalia"},
-    "DR Konga vs Uzbekistan": {"date": "2026-06-28", "home": "DR Konga", "away": "Uzbekistan"},
-    "Anglia vs Chorwacja": {"date": "2026-06-17", "home": "Anglia", "away": "Chorwacja"},
-    "Ghana vs Panama": {"date": "2026-06-18", "home": "Ghana", "away": "Panama"},
-    "Anglia vs Ghana": {"date": "2026-06-23", "home": "Anglia", "away": "Ghana"},
-    "Panama vs Chorwacja": {"date": "2026-06-23", "home": "Panama", "away": "Chorwacja"},
-    "Panama vs Anglia": {"date": "2026-06-28", "home": "Panama", "away": "Anglia"},
-    "Chorwacja vs Ghana": {"date": "2026-06-28", "home": "Chorwacja", "away": "Ghana"}
+    # 1. KOLEJKA
+    "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
+    "Korea Płd. vs Czechy": {"date": "2026-06-12", "time": "04:00", "home": "Korea Płd.", "away": "Czechy"},
+    "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "time": "21:00", "home": "Kanada", "away": "Bośnia i Herc."},
+    "USA vs Paragwaj": {"date": "2026-06-13", "time": "03:00", "home": "USA", "away": "Paragwaj"},
+    "Katar vs Szwajcaria": {"date": "2026-06-13", "time": "21:00", "home": "Katar", "away": "Szwajcaria"},
+    "Brazylia vs Maroko": {"date": "2026-06-14", "time": "00:00", "home": "Brazylia", "away": "Maroko"},
+    "Haiti vs Szkocja": {"date": "2026-06-14", "time": "03:00", "home": "Haiti", "away": "Szkocja"},
+    "Australia vs Turcja": {"date": "2026-06-14", "time": "06:00", "home": "Australia", "away": "Turcja"},
+    "Niemcy vs Curacao": {"date": "2026-06-14", "time": "19:00", "home": "Niemcy", "away": "Curacao"},
+    "Holandia vs Japonia": {"date": "2026-06-14", "time": "22:00", "home": "Holandia", "away": "Japonia"},
+    "WKS vs Ekwador": {"date": "2026-06-15", "time": "01:00", "home": "WKS", "away": "Ekwador"},
+    "Szwecja vs Tunezja": {"date": "2026-06-15", "time": "04:00", "home": "Szwecja", "away": "Tunezja"},
+    "Hiszpania vs Rep. Z. Przyl.": {"date": "2026-06-15", "time": "18:00", "home": "Hiszpania", "away": "Rep. Z. Przyl."},
+    "Belgia vs Egipt": {"date": "2026-06-15", "time": "21:00", "home": "Belgia", "away": "Egipt"},
+    "Arabia Saud. vs Urugwaj": {"date": "2026-06-16", "time": "00:00", "home": "Arabia Saud.", "away": "Urugwaj"},
+    "Iran vs Nowa Zelandia": {"date": "2026-06-16", "time": "03:00", "home": "Iran", "away": "Nowa Zelandia"},
+    "Francja vs Senegal": {"date": "2026-06-16", "time": "21:00", "home": "Francja", "away": "Senegal"},
+    "Irak vs Norwegia": {"date": "2026-06-17", "time": "00:00", "home": "Irak", "away": "Norwegia"},
+    "Argentyna vs Algieria": {"date": "2026-06-17", "time": "03:00", "home": "Argentyna", "away": "Algieria"},
+    "Austria vs Jordania": {"date": "2026-06-17", "time": "06:00", "home": "Austria", "away": "Jordania"},
+    "Portugalia vs DR Konga": {"date": "2026-06-17", "time": "19:00", "home": "Portugalia", "away": "DR Konga"},
+    "Anglia vs Chorwacja": {"date": "2026-06-17", "time": "22:00", "home": "Anglia", "away": "Chorwacja"},
+    "Ghana vs Panama": {"date": "2026-06-18", "time": "01:00", "home": "Ghana", "away": "Panama"},
+    "Uzbekistan vs Kolumbia": {"date": "2026-06-18", "time": "04:00", "home": "Uzbekistan", "away": "Kolumbia"},
+
+    # 2. KOLEJKA
+    "Czechy vs RPA": {"date": "2026-06-18", "time": "18:00", "home": "Czechy", "away": "RPA"},
+    "Szwajcaria vs Bośnia i Herc.": {"date": "2026-06-18", "time": "21:00", "home": "Szwajcaria", "away": "Bośnia i Herc."},
+    "Kanada vs Katar": {"date": "2026-06-19", "time": "00:00", "home": "Kanada", "away": "Katar"},
+    "Meksyk vs Korea Płd.": {"date": "2026-06-19", "time": "03:00", "home": "Meksyk", "away": "Korea Płd."},
+    "USA vs Australia": {"date": "2026-06-19", "time": "21:00", "home": "USA", "away": "Australia"},
+    "Szkocja vs Maroko": {"date": "2026-06-20", "time": "00:00", "home": "Szkocja", "away": "Maroko"},
+    "Brazylia vs Haiti": {"date": "2026-06-20", "time": "03:00", "home": "Brazylia", "away": "Haiti"},
+    "Turcja vs Paragwaj": {"date": "2026-06-20", "time": "06:00", "home": "Turcja", "away": "Paragwaj"},
+    "Holandia vs Szwecja": {"date": "2026-06-20", "time": "19:00", "home": "Holandia", "away": "Szwecja"},
+    "Niemcy vs WKS": {"date": "2026-06-20", "time": "22:00", "home": "Niemcy", "away": "WKS"},
+    "Tunezja vs Japonia": {"date": "2026-06-21", "time": "00:00", "home": "Tunezja", "away": "Japonia"},
+    "Ekwador vs Curacao": {"date": "2026-06-21", "time": "02:00", "home": "Ekwador", "away": "Curacao"},
+    "Hiszpania vs Arabia Saud.": {"date": "2026-06-21", "time": "18:00", "home": "Hiszpania", "away": "Arabia Saud."},
+    "Belgia vs Iran": {"date": "2026-06-21", "time": "21:00", "home": "Belgia", "away": "Iran"},
+    "Urugwaj vs Rep. Z. Przyl.": {"date": "2026-06-22", "time": "00:00", "home": "Urugwaj", "away": "Rep. Z. Przyl."},
+    "Nowa Zelandia vs Egipt": {"date": "2026-06-22", "time": "03:00", "home": "Nowa Zelandia", "away": "Egipt"},
+    "Argentyna vs Austria": {"date": "2026-06-22", "time": "19:00", "home": "Argentyna", "away": "Austria"},
+    "Francja vs Irak": {"date": "2026-06-22", "time": "23:00", "home": "Francja", "away": "Irak"},
+    "Norwegia vs Senegal": {"date": "2026-06-23", "time": "02:00", "home": "Norwegia", "away": "Senegal"},
+    "Jordania vs Algieria": {"date": "2026-06-23", "time": "05:00", "home": "Jordania", "away": "Algieria"},
+    "Portugalia vs Uzbekistan": {"date": "2026-06-23", "time": "19:00", "home": "Portugalia", "away": "Uzbekistan"},
+    "Anglia vs Ghana": {"date": "2026-06-23", "time": "22:00", "home": "Anglia", "away": "Ghana"},
+    "Panama vs Chorwacja": {"date": "2026-06-24", "time": "01:00", "home": "Panama", "away": "Chorwacja"},
+    "Kolumbia vs DR Konga": {"date": "2026-06-24", "time": "04:00", "home": "Kolumbia", "away": "DR Konga"},
+
+    # 3. KOLEJKA
+    "Szwajcaria vs Kanada": {"date": "2026-06-24", "time": "21:00", "home": "Szwajcaria", "away": "Kanada"},
+    "Bośnia i Herc. vs Katar": {"date": "2026-06-24", "time": "21:00", "home": "Bośnia i Herc.", "away": "Katar"},
+    "Maroko vs Haiti": {"date": "2026-06-25", "time": "00:00", "home": "Maroko", "away": "Haiti"},
+    "Szkocja vs Brazylia": {"date": "2026-06-25", "time": "00:00", "home": "Szkocja", "away": "Brazylia"},
+    "RPA vs Korea Płd.": {"date": "2026-06-25", "time": "03:00", "home": "RPA", "away": "Korea Płd."},
+    "Czechy vs Meksyk": {"date": "2026-06-25", "time": "03:00", "home": "Czechy", "away": "Meksyk"},
+    "Curacao vs WKS": {"date": "2026-06-25", "time": "22:00", "home": "Curacao", "away": "WKS"},
+    "Ekwador vs Niemcy": {"date": "2026-06-25", "time": "22:00", "home": "Ekwador", "away": "Niemcy"},
+    "Japonia vs Szwecja": {"date": "2026-06-26", "time": "01:00", "home": "Japonia", "away": "Szwecja"},
+    "Tunezja vs Holandia": {"date": "2026-06-26", "time": "01:00", "home": "Tunezja", "away": "Holandia"},
+    "Paragwaj vs Australia": {"date": "2026-06-26", "time": "04:00", "home": "Paragwaj", "away": "Australia"},
+    "Turcja vs USA": {"date": "2026-06-26", "time": "04:00", "home": "Turcja", "away": "USA"},
+    "Norwegia vs Francja": {"date": "2026-06-26", "time": "21:00", "home": "Norwegia", "away": "Francja"},
+    "Senegal vs Irak": {"date": "2026-06-26", "time": "21:00", "home": "Senegal", "away": "Irak"},
+    "Rep. Z. Przyl. vs Arabia Saud.": {"date": "2026-06-27", "time": "02:00", "home": "Rep. Z. Przyl.", "away": "Arabia Saud."},
+    "Urugwaj vs Hiszpania": {"date": "2026-06-27", "time": "02:00", "home": "Urugwaj", "away": "Hiszpania"},
+    "Egipt vs Iran": {"date": "2026-06-27", "time": "05:00", "home": "Egipt", "away": "Iran"},
+    "Nowa Zelandia vs Belgia": {"date": "2026-06-27", "time": "05:00", "home": "Nowa Zelandia", "away": "Belgia"},
+    "Chorwacja vs Ghana": {"date": "2026-06-27", "time": "23:00", "home": "Chorwacja", "away": "Ghana"},
+    "Panama vs Anglia": {"date": "2026-06-27", "time": "23:00", "home": "Panama", "away": "Anglia"},
+    "Kolumbia vs Portugalia": {"date": "2026-06-28", "time": "01:30", "home": "Kolumbia", "away": "Portugalia"},
+    "DR Konga vs Uzbekistan": {"date": "2026-06-28", "time": "01:30", "home": "DR Konga", "away": "Uzbekistan"},
+    "Jordania vs Argentyna": {"date": "2026-06-28", "time": "04:00", "home": "Jordania", "away": "Argentyna"},
+    "Algieria vs Austria": {"date": "2026-06-28", "time": "04:00", "home": "Algieria", "away": "Austria"}
+}
 }
 
 def load_data():
@@ -127,6 +133,27 @@ def calculate_points(bet_home, bet_away, res_home, res_away):
     return 0
 
 st.set_page_config(page_title="Rodzinny Typer", page_icon="⚽", layout="centered")
+# --- NOWOCZESNE TŁO I WYGLĄD (CSS) ---
+page_bg_img = """
+<style>
+[data-testid="stAppViewContainer"] {
+    background-image: linear-gradient(rgba(15, 32, 39, 0.85), rgba(32, 58, 67, 0.85)), url("https://images.unsplash.com/photo-1518605368461-1ee1252271b1?q=80&w=2000&auto=format&fit=crop");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+[data-testid="stHeader"] {
+    background: rgba(0,0,0,0);
+}
+/* Lekkie zaokrąglenie i tło dla zakładek, żeby lepiej się klikało */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 5px;
+}
+</style>
+"""
+st.markdown(page_bg_img, unsafe_allow_html=True)
 st.title("⚽ Rodzinny Typer Mundialowy")
 
 # --- OBLICZANIE DAT (Dziś i Jutro) ---
