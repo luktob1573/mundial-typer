@@ -28,7 +28,7 @@ FLAGS = {
 
 # --- BAZA MECZÓW Z DATAMI ---
 MATCHES = {
-     "cks vs real madryt": {"date": "2026-06-10", "home": "cks", "away": "real madryt"},
+     "cks vs real madryt": {"date": "2026-06-09", "home": "cks", "away": "real madryt"},
     "Meksyk vs RPA": {"date": "2026-06-11", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-11", "home": "Korea Płd.", "away": "Czechy"},
     "Meksyk vs Korea Płd.": {"date": "2026-06-18", "home": "Meksyk", "away": "Korea Płd."},
