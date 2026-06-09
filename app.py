@@ -16,6 +16,8 @@ HEADERS = {
 # --- BAZA MECZÓW Z DATAMI ---
 # Ważne: Format daty musi wyglądać dokładnie tak: RRRR-MM-DD
 MATCHES = {
+    #TEST
+    "REAL MADRYT vs CKS CZELADŹ": {"date": "2026-06-10", "home": "CKS CZELADŹ", "away": "REAL MADRYT"}, 
     # Grupa A
     "Meksyk vs RPA": {"date": "2026-06-11", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-11", "home": "Korea Płd.", "away": "Czechy"},
