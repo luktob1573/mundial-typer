@@ -31,7 +31,8 @@ FLAGS = {
 
 # --- BAZA MECZÓW Z DATAMI I GODZINAMI (Czas Warszawski - TVP Sport) ---
 MATCHES = {
-    "CKS vs Real madrit": {"date": "2026-06-09", "time": "21:00", "home": "CKS", "away": "Real madrit"}, 
+    "CKS vs Real madrit": {"date": "2026-06-09", "time": "21:00", "home": "CKS", "away": "Real madrit"},
+    "CKS II vs Barcelona FC": {"date": "2026-06-10", "time": "15:00", "home": "CKS II", "away": "Barcelona FC"}, 
     "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-12", "time": "04:00", "home": "Korea Płd.", "away": "Czechy"},
     "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "time": "21:00", "home": "Kanada", "away": "Bośnia i Herc."},
