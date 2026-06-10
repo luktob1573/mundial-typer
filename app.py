@@ -15,7 +15,7 @@ HEADERS = {
 }
 
 # --- LISTA GRACZY ---
-GRACZE = ["Wybierz swoje imię...", "Łukasz", "Natalia", "Lena", "Babcia", "Dziadek", "Gość"]
+GRACZE = ["Wybierz swoje imię...", "Łukasz T", "Natalia", "Łukasz Z", "Babcia Ania", "Dziadek Adam", "Karolina", "Ala", "Babcia Asia", "Dziadek Piotrek", "Wiki", "Wojtas",]
 
 # --- SŁOWNIK FLAG ---
 FLAGS = {
