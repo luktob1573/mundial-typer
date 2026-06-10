@@ -272,3 +272,32 @@ with tab3:
             save_data(czyste_dane)
             st.warning("Wszystkie dane zostały wymazane! Tabela jest czysta.")
             st.rerun()
+            # --- GENERATOR PRZYPOMNIEŃ WHATSAPP ---
+        st.markdown("---")
+        st.subheader("📱 Przypomnienie WhatsApp")
+        st.write("Wyślij szybkie przypomnienie na rodzinną grupę!")
+        
+        # Tworzenie listy dzisiejszych meczów do wiadomości
+        dzisiejsze_mecze = []
+        for m_id, info in MATCHES.items():
+            if datetime.strptime(info["date"], "%Y-%m-%d").date() == dzisiaj_obj:
+                dzisiejsze_mecze.append(f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})")
+                
+        if dzisiejsze_mecze:
+            # Tu wklej link do swojej aplikacji ze Streamlit Cloud!
+            LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
+            
+            tekst_wa = "⚽ Hej rodzinko! Przypominam o typowaniu dzisiejszych meczów na Mundialu! Grają dzisiaj:\n\n"
+            tekst_wa += "\n".join(dzisiejsze_mecze)
+            tekst_wa += f"\n\nZalogujcie się i wpiszcie swoje typy zanim usłyszycie pierwszy gwizdek! ⏳\nLink do naszej apki: {https://rodzinka.streamlit.app/}"
+            
+            import urllib.parse
+            gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
+            
+            st.info("Poniżej podgląd wiadomości:")
+            st.code(tekst_wa, language="text")
+            
+            # Zielony przycisk otwierający WhatsApp
+            st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-weight:bold;width:100%;">Wyślij na WhatsApp 💬</button></a>', unsafe_allow_html=True)
+        else:
+            st.success("Dzisiaj nie ma żadnych meczów. Rodzina może odpocząć! 🌴")
