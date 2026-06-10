@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime, timedelta
+import pandas as pd
 
 # --- KONFIGURACJA CHMURY (JSONBin.io) ---
 # Wklej swoje klucze pomiędzy cudzysłowy poniżej:
@@ -13,22 +14,8 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-# --- LISTA GRACZY (Zabezpieczenie przed duplikatami) ---
-# Wystarczy, że domownik raz wybierze siebie z tej listy.
-GRACZE = [
-    "Wybierz swoje imię...", 
-    "Łukasz Z",
-    "Łukasz T",
-    "Natalia", 
-    "Karolcia", 
-    "babcia Ania", 
-    "dziadek Adam",
-    "Wiki",
-    "dziadek Piotrek",
-    "babcia Asia",
-    "Ala",
-    "Wojtas"
-]
+# --- LISTA GRACZY ---
+GRACZE = ["Wybierz swoje imię...", "Łukasz", "Natalia", "Lena", "Babcia", "Dziadek", "Gość"]
 
 # --- SŁOWNIK FLAG ---
 FLAGS = {
@@ -128,6 +115,8 @@ def load_data():
         record = response.json().get("record", {})
         if "bets" not in record: record["bets"] = {}
         if "results" not in record: record["results"] = {}
+        if "long_term" not in record: record["long_term"] = {}
+        if "winner_result" not in record: record["winner_result"] = ""
         return record
     except Exception:
         return {"results": {}, "bets": {}}
@@ -147,7 +136,6 @@ def calculate_points(bet_home, bet_away, res_home, res_away):
 
 st.set_page_config(page_title="Rodzinny Typer", page_icon="⚽", layout="centered")
 
-# --- NOWOCZESNE TŁO I WYGLĄD (CSS) ---
 page_bg_img = """
 <style>
 [data-testid="stAppViewContainer"] {
@@ -156,9 +144,7 @@ page_bg_img = """
     background-position: center;
     background-attachment: fixed;
 }
-[data-testid="stHeader"] {
-    background: rgba(0,0,0,0);
-}
+[data-testid="stHeader"] { background: rgba(0,0,0,0); }
 .stTabs [data-baseweb="tab-list"] {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
@@ -170,7 +156,7 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 
 st.title("⚽ Rodzinny Typer Mundialowy")
 
-# --- OBLICZANIE CZASU DLA POLSKI ---
+# --- CZAS W POLSCE ---
 czas_polska = datetime.utcnow() + timedelta(hours=2)
 dzisiaj_obj = czas_polska.date()
 jutro_obj = dzisiaj_obj + timedelta(days=1)
@@ -179,15 +165,33 @@ st.write(f"📅 *Mecze dostępne na: **{dzisiaj_obj.strftime('%d.%m')}** oraz **
 
 tab1, tab2, tab3 = st.tabs(["🎯 Typuj", "🏆 Tabela", "⚙️ Admin"])
 
+# --- TAB 1: TYPOWANIE ---
 with tab1:
     st.header("Oddaj swoje typy")
-    st.info("💡 Pamiętaj: typowanie jest zablokowane od momentu rozpoczęcia meczu!")
-    
-    # Rozwijana lista graczy zamiast wpisywania tekstu
     user_name = st.selectbox("Kim jesteś?", GRACZE)
     
     if user_name != "Wybierz swoje imię...":
         if user_name not in data["bets"]: data["bets"][user_name] = {}
+        
+        # --- TYP DŁUGOTERMINOWY ---
+        st.markdown("---")
+        st.subheader("🏆 Twój Mistrz Świata")
+        start_turnieju = datetime(2026, 6, 11, 21, 0)
+        lista_panstw = sorted(list(FLAGS.keys()))
+        
+        if czas_polska < start_turnieju:
+            st.info("⏰ Masz czas do 11 czerwca do 21:00 na wytypowanie Mistrza Świata (+8 pkt na koniec!)")
+            obecny_typ = data["long_term"].get(user_name, "Wybierz państwo...")
+            idx = lista_panstw.index(obecny_typ) if obecny_typ in lista_panstw else 0
+            wybrane_panstwo = st.selectbox("Kto wygra Mundial?", ["Wybierz państwo..."] + lista_panstw, index=idx, key=f"lt_{user_name}")
+            if wybrane_panstwo != "Wybierz państwo...":
+                data["long_term"][user_name] = wybrane_panstwo
+        else:
+            wybrany = data["long_term"].get(user_name, "Brak typu")
+            st.warning(f"🔒 Typowanie zamknięte. Twój wybór to: **{wybrany}**")
+            
+        st.markdown("---")
+        st.subheader("⚽ Bieżące mecze")
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
@@ -200,7 +204,6 @@ with tab1:
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
                 st.markdown(f"### 📅 {match_info['date']} ⏰ {match_info['time']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
-                
                 current_bet = data["bets"][user_name].get(match_id, [0, 0])
                 
                 if czas_polska < match_datetime_obj:
@@ -209,95 +212,159 @@ with tab1:
                     with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
                     data["bets"][user_name][match_id] = [score_home, score_away]
                 else:
-                    st.error("⏳ Mecz już się rozpoczął (lub zakończył). Typowanie zablokowane.")
-                    st.info(f"Twój zapisany typ to: **{int(current_bet[0])} : {int(current_bet[1])}**")
+                    # --- OPCJA 4: PODGLĄD TYPÓW NA ŻYWO ---
+                    st.error("⏳ Mecz już się rozpoczął. Edycja zablokowana.")
+                    st.markdown("**Typy rodziny na ten mecz:**")
+                    for gracz, gracz_bets in data.get("bets", {}).items():
+                        if match_id in gracz_bets:
+                            g_bet = gracz_bets[match_id]
+                            st.write(f"👤 **{gracz}**: `{int(g_bet[0])} : {int(g_bet[1])}`")
                 
-        if licznik_meczow > 0:
-            if st.button("Zapisz typy 💾"):
+        if licznik_meczow > 0 and czas_polska < start_turnieju or any(datetime.strptime(f"{m['date']} {m['time']}", "%Y-%m-%d %H:%M") > czas_polska for m in MATCHES.values() if datetime.strptime(m["date"], "%Y-%m-%d").date() in [dzisiaj_obj, jutro_obj]):
+            if st.button("Zapisz zmiany 💾"):
                 save_data(data)
-                st.success("Zapisano! Twoje typy są bezpieczne.")
-        else:
-            st.success("Aktualnie brak meczów do typowania na dziś i jutro!")
+                st.success("Wszystko zapisane!")
 
+# --- TAB 2: TABELA I STATYSTYKI ---
 with tab2:
-    st.header("📊 Tabela Rodzinna")
-    leaderboard = {}
+    st.header("🏆 Tabela Rodzinna")
     
     bets_data = data.get("bets", {})
     results_data = data.get("results", {})
+    long_term_data = data.get("long_term", {})
+    winner_result = data.get("winner_result", "")
     
+    leaderboard = {}
+    punkty_dzis = {}
+    
+    for user in bets_data.keys():
+        leaderboard[user] = 0
+        punkty_dzis[user] = 0
+        
+    # Liczenie punktów bieżących i dzisiejszych
     for user, user_bets in bets_data.items():
-        pts = 0
+        total_pts = 0
         for match_id, bet in user_bets.items():
             if match_id in results_data:
                 res = results_data[match_id]
-                if isinstance(res, list) and len(res) == 2 and isinstance(bet, list) and len(bet) == 2:
-                    pts += calculate_points(bet[0], bet[1], res[0], res[1])
-        leaderboard[user] = pts
+                pts = calculate_points(bet[0], bet[1], res[0], res[1])
+                total_pts += pts
+                if MATCHES[match_id]["date"] == dzisiaj_obj.strftime("%Y-%m-%d"):
+                    punkty_dzis[user] += pts
         
-    sorted_leaderboard = sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
-    if sorted_leaderboard:
-        for idx, (player, pts) in enumerate(sorted_leaderboard, 1):
-            medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
-            st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt`")
-    else:
-        st.info("Brak punktów w tabeli. Oddajcie pierwsze typy!")
+        # Dodanie bonusu +8 za długoterminowy typ
+        if winner_result and long_term_data.get(user) == winner_result:
+            total_pts += 8
+            
+        leaderboard[user] = total_pts
+        
+    # Wyświetlanie tabeli głównej
+    for idx, (player, pts) in enumerate(sorted(leaderboard.items(), key=lambda x: x[1], reverse=True), 1):
+        medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
+        lt_info = f" (Typ: {long_term_data.get(player, 'brak')})" if long_term_data.get(player) else ""
+        st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt` *{lt_info}*")
+        
+    # --- OPCJA 3: WYKRES FORMY ---
+    sorted_match_ids = sorted(MATCHES.keys(), key=lambda m: f"{MATCHES[m]['date']} {MATCHES[m]['time']}")
+    history_points = {"Mecz": ["Start"]}
+    for user in bets_data.keys():
+        history_points[user] = [0]
+        
+    for m_id in sorted_match_ids:
+        if m_id in results_data:
+            res = results_data[m_id]
+            history_points["Mecz"].append(m_id.split(" vs ")[0] + "-" + m_id.split(" vs ")[1])
+            for user in bets_data.keys():
+                user_bets = bets_data[user]
+                last_pts = history_points[user][-1]
+                if m_id in user_bets:
+                    pts_gained = calculate_points(user_bets[m_id][0], user_bets[m_id][1], res[0], res[1])
+                    history_points[user].append(last_pts + pts_gained)
+                else:
+                    history_points[user].append(last_pts)
+                    
+    if len(history_points["Mecz"]) > 1:
+        st.markdown("---")
+        st.subheader("📈 Wykres Formy (Progresja Punktów)")
+        df_chart = pd.DataFrame(history_points).set_index("Mecz")
+        st.line_chart(df_chart)
 
+    # --- OPCJA 1: TABLICA CHWAŁY I SZYDERSTWA ---
+    if any(punkty_dzis.values()):
+        st.markdown("---")
+        st.subheader("🎭 Tablica Chwały i Szyderstwa (Wyniki z dziś)")
+        max_pt = max(punkty_dzis.values())
+        min_pt = min(punkty_dzis.values())
+        
+        najlepsi = [u for u, p in punkty_dzis.items() if p == max_pt and p > 0]
+        najgorsi = [u for u, p in punkty_dzis.items() if p == min_pt]
+        
+        if najlepsi:
+            st.success(f"🧠 **Znawca Kolejki (Dziś):** {', '.join(najlepsi)} (+{max_pt} pkt!)")
+        if najgorsi and min_pt == 0:
+            st.error(f"🪑 **Kanapowy Selekcjoner (Dziś - 0 pkt):** {', '.join(najgorsi)}")
+
+# --- TAB 3: ADMIN ---
 with tab3:
-    st.header("⚙️ Wpisz wyniki (Admin)")
+    st.header("⚙️ Panel Administratora")
     if st.text_input("Hasło:", type="password") == "rodzina2026":
+        
+        st.subheader("🏆 Wynik Długoterminowy (Na koniec turnieju)")
+        obecny_mistrz = data.get("winner_result", "")
+        idx_m = lista_panstw.index(obecny_mistrz) if obecny_mistrz in lista_panstw else 0
+        oficjalny_mistrz = st.selectbox("Kto oficjalnie wygrał Mundial?", ["Turniej w trakcie..."] + lista_panstw, index=idx_m)
+        data["winner_result"] = oficjalny_mistrz if oficjalny_mistrz != "Turniej w trakcie..." else ""
+        
+        st.subheader("⚽ Wpisz wyniki meczów")
         for match_id, match_info in MATCHES.items():
             match_date_obj = datetime.strptime(match_info["date"], "%Y-%m-%d").date()
-            
             if match_date_obj <= dzisiaj_obj:
                 flaga_h = FLAGS.get(match_info['home'], "🏳️")
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
-                st.markdown(f"### 📅 {match_info['date']} ⏰ {match_info['time']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
-                
+                st.markdown(f"### 📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
                 current_res = data["results"].get(match_id, [0, 0])
                 col1, col2 = st.columns(2)
                 with col1: res_h = st.number_input(f"Wynik {match_info['home']}", 0, 20, int(current_res[0]), key=f"rh_{match_id}")
                 with col2: res_a = st.number_input(f"Wynik {match_info['away']}", 0, 20, int(current_res[1]), key=f"ra_{match_id}")
                 data["results"][match_id] = [res_h, res_a]
                 
-        if st.button("Aktualizuj oficjalne wyniki 📣"):
+        if st.button("Aktualizuj dane i wyniki 📣"):
             save_data(data)
-            st.success("Oficjalne wyniki zapisane! Tabela została zaktualizowana.")
+            st.success("Dane zaktualizowane!")
             
-        st.markdown("---")
-        st.subheader("🚨 Strefa Awaryjna")
-        if st.button("WYZERUJ CAŁY TURNIEJ (Usuń typy i wyniki) 🧹"):
-            czyste_dane = {"results": {}, "bets": {}}
-            save_data(czyste_dane)
-            st.warning("Wszystkie dane zostały wymazane! Tabela jest czysta.")
-            st.rerun()
-       # --- GENERATOR PRZYPOMNIEŃ WHATSAPP (MECZE NA JUTRO) ---
+        # --- GENERATOR PRZYPOMNIEŃ WHATSAPP (MECZE NA JUTRO) ---
         st.markdown("---")
         st.subheader("📱 Przypomnienie WhatsApp (Mecze na Jutro)")
-        st.write("Wyślij przypomnienie o jutrzejszych meczach na rodzinną grupę!")
-        
         jutrzejsze_mecze = []
         for m_id, info in MATCHES.items():
-            # Zmiana: Sprawdzamy mecze z datą jutrzejszą zamiast dzisiejszej
             if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj:
                 jutrzejsze_mecze.append(f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})")
                 
         if jutrzejsze_mecze:
-            # Pamiętaj, aby wpisać tu swój prawdziwy link ze Streamlit Cloud!
             LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
-            
             tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! Zobaczcie, co gramy jutro:\n\n"
             tekst_wa += "\n".join(jutrzejsze_mecze)
             tekst_wa += f"\n\nWarto obstawić już dzisiaj wieczorem, żeby nie przegapić porannych spotkań! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
             
             import urllib.parse
             gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
-            
-            st.info("Poniżej podgląd wiadomości na jutro:")
             st.code(tekst_wa, language="text")
-            
-            # Zielony przycisk WhatsApp
             st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-weight:bold;width:100%;">Wyślij na WhatsApp 💬</button></a>', unsafe_allow_html=True)
         else:
-            st.success("Jutro nie ma żadnych meczów. Pełen luz! 🌴")
+            st.success("Jutro nie ma meczów.")
+            
+       # --- DWUETAPOWA STREFA AWARYJNA ---
+        st.markdown("---")
+        st.subheader("🚨 Strefa Awaryjna")
+        st.error("Uwaga! Ta operacja jest nieodwracalna. Całkowicie usunie wszystkie typy domowników oraz wpisane wyniki.")
+        
+        # Etap 1: Pole potwierdzenia (Checkbox)
+        zabezpieczenie = st.checkbox("Rozumiem konsekwencje. Odblokuj przycisk resetu.")
+        
+        # Etap 2: Właściwy przycisk (pojawia się tylko, gdy pole wyżej jest zaznaczone)
+        if zabezpieczenie:
+            if st.button("🔴 OSTATECZNIE WYZERUJ CAŁY TURNIEJ 🔴"):
+                save_data({"results": {}, "bets": {}, "long_term": {}, "winner_result": ""})
+                st.success("Wszystko zostało bezpowrotnie wyczyszczone. Tabela jest znów pusta!")
+                st.rerun()
