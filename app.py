@@ -13,6 +13,23 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+# --- LISTA GRACZY (Zabezpieczenie przed duplikatami) ---
+# Wystarczy, że domownik raz wybierze siebie z tej listy.
+GRACZE = [
+    "Wybierz swoje imię...", 
+    "Łukasz Z",
+    "Łukasz T",
+    "Natalia", 
+    "Karolcia", 
+    "babcia Ania", 
+    "dziadek Adam",
+    "Wiki",
+    "dziadek Piotrek",
+    "babcia Asia",
+    "Ala",
+    "Wojtas"
+]
+
 # --- SŁOWNIK FLAG ---
 FLAGS = {
     "Meksyk": "🇲🇽", "RPA": "🇿🇦", "Korea Płd.": "🇰🇷", "Czechy": "🇨🇿",
@@ -31,8 +48,6 @@ FLAGS = {
 
 # --- BAZA MECZÓW Z DATAMI I GODZINAMI (Czas Warszawski - TVP Sport) ---
 MATCHES = {
-    "CKS vs Real madrit": {"date": "2026-06-09", "time": "21:00", "home": "CKS", "away": "Real madrit"},
-    "CKS II vs Barcelona FC": {"date": "2026-06-10", "time": "15:00", "home": "CKS II", "away": "Barcelona FC"}, 
     "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-12", "time": "04:00", "home": "Korea Płd.", "away": "Czechy"},
     "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "time": "21:00", "home": "Kanada", "away": "Bośnia i Herc."},
@@ -156,7 +171,6 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 st.title("⚽ Rodzinny Typer Mundialowy")
 
 # --- OBLICZANIE CZASU DLA POLSKI ---
-# Chmura domyślnie działa w czasie UTC. Zwiększamy o 2h, aby dopasować do polskiego czasu letniego.
 czas_polska = datetime.utcnow() + timedelta(hours=2)
 dzisiaj_obj = czas_polska.date()
 jutro_obj = dzisiaj_obj + timedelta(days=1)
@@ -169,14 +183,15 @@ with tab1:
     st.header("Oddaj swoje typy")
     st.info("💡 Pamiętaj: typowanie jest zablokowane od momentu rozpoczęcia meczu!")
     
-    user_name = st.text_input("Kim jesteś? (Wpisz swoje imię):").strip()
-    if user_name:
+    # Rozwijana lista graczy zamiast wpisywania tekstu
+    user_name = st.selectbox("Kim jesteś?", GRACZE)
+    
+    if user_name != "Wybierz swoje imię...":
         if user_name not in data["bets"]: data["bets"][user_name] = {}
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
             match_date_obj = datetime.strptime(match_info["date"], "%Y-%m-%d").date()
-            # Łączymy datę i godzinę meczu do precyzyjnego porównania
             match_datetime_obj = datetime.strptime(f"{match_info['date']} {match_info['time']}", "%Y-%m-%d %H:%M")
             
             if dzisiaj_obj <= match_date_obj <= jutro_obj:
@@ -188,7 +203,6 @@ with tab1:
                 
                 current_bet = data["bets"][user_name].get(match_id, [0, 0])
                 
-                # BLOKADA CZASOWA
                 if czas_polska < match_datetime_obj:
                     col1, col2 = st.columns(2)
                     with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
@@ -251,7 +265,6 @@ with tab3:
             save_data(data)
             st.success("Oficjalne wyniki zapisane! Tabela została zaktualizowana.")
             
-        # --- DODATKOWY PRZYCISK RESETU ---
         st.markdown("---")
         st.subheader("🚨 Strefa Awaryjna")
         if st.button("WYZERUJ CAŁY TURNIEJ (Usuń typy i wyniki) 🧹"):
