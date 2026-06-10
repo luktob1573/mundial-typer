@@ -272,32 +272,32 @@ with tab3:
             save_data(czyste_dane)
             st.warning("Wszystkie dane zostały wymazane! Tabela jest czysta.")
             st.rerun()
-            # --- GENERATOR PRZYPOMNIEŃ WHATSAPP ---
+       # --- GENERATOR PRZYPOMNIEŃ WHATSAPP (MECZE NA JUTRO) ---
         st.markdown("---")
-        st.subheader("📱 Przypomnienie WhatsApp")
-        st.write("Wyślij szybkie przypomnienie na rodzinną grupę!")
+        st.subheader("📱 Przypomnienie WhatsApp (Mecze na Jutro)")
+        st.write("Wyślij przypomnienie o jutrzejszych meczach na rodzinną grupę!")
         
-        # Tworzenie listy dzisiejszych meczów do wiadomości
-        dzisiejsze_mecze = []
+        jutrzejsze_mecze = []
         for m_id, info in MATCHES.items():
-            if datetime.strptime(info["date"], "%Y-%m-%d").date() == dzisiaj_obj:
-                dzisiejsze_mecze.append(f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})")
+            # Zmiana: Sprawdzamy mecze z datą jutrzejszą zamiast dzisiejszej
+            if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj:
+                jutrzejsze_mecze.append(f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})")
                 
-        if dzisiejsze_mecze:
-            # Tu wklej link do swojej aplikacji ze Streamlit Cloud!
+        if jutrzejsze_mecze:
+            # Pamiętaj, aby wpisać tu swój prawdziwy link ze Streamlit Cloud!
             LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
             
-            tekst_wa = "⚽ Hej rodzinko! Przypominam o typowaniu dzisiejszych meczów na Mundialu! Grają dzisiaj:\n\n"
-            tekst_wa += "\n".join(dzisiejsze_mecze)
-            tekst_wa += f"\n\nZalogujcie się i wpiszcie swoje typy zanim usłyszycie pierwszy gwizdek! ⏳\nLink do naszej apki: {https://rodzinka.streamlit.app/}"
+            tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! Zobaczcie, co gramy jutro:\n\n"
+            tekst_wa += "\n".join(jutrzejsze_mecze)
+            tekst_wa += f"\n\nWarto obstawić już dzisiaj wieczorem, żeby nie przegapić porannych spotkań! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
             
             import urllib.parse
             gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
             
-            st.info("Poniżej podgląd wiadomości:")
+            st.info("Poniżej podgląd wiadomości na jutro:")
             st.code(tekst_wa, language="text")
             
-            # Zielony przycisk otwierający WhatsApp
+            # Zielony przycisk WhatsApp
             st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-weight:bold;width:100%;">Wyślij na WhatsApp 💬</button></a>', unsafe_allow_html=True)
         else:
-            st.success("Dzisiaj nie ma żadnych meczów. Rodzina może odpocząć! 🌴")
+            st.success("Jutro nie ma żadnych meczów. Pełen luz! 🌴")
