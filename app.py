@@ -353,7 +353,19 @@ with tab3:
             st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-weight:bold;width:100%;">Wyślij na WhatsApp 💬</button></a>', unsafe_allow_html=True)
         else:
             st.success("Jutro nie ma meczów.")
-            
+       # --- KOPIA ZAPASOWA (BACKUP) ---
+        st.markdown("---")
+        st.subheader("💾 Kopia Zapasowa (Backup)")
+        st.info("Pobierz aktualny stan tabeli, wszystkie typy i wpisane wyniki w postaci pliku awaryjnego.")
+        
+        import json
+        kopia_json = json.dumps(data, indent=4)
+        st.download_button(
+            label="Pobierz kopię zapasową (Plik JSON) 📥",
+            data=kopia_json,
+            file_name=f"typer_backup_{dzisiaj_obj.strftime('%Y-%m-%d')}.json",
+            mime="application/json"
+        )     
        # --- DWUETAPOWA STREFA AWARYJNA ---
         st.markdown("---")
         st.subheader("🚨 Strefa Awaryjna")
