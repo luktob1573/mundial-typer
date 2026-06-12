@@ -307,7 +307,7 @@ with tab2:
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
-    if st.text_input("Hasło:", type="password") == "rodzina2026":
+    if st.text_input("Hasło:", type="password") == "1234":
         
         st.subheader("🏆 Wynik Długoterminowy (Na koniec turnieju)")
         obecny_mistrz = data.get("winner_result", "")
@@ -315,24 +315,80 @@ with tab3:
         oficjalny_mistrz = st.selectbox("Kto oficjalnie wygrał Mundial?", ["Turniej w trakcie..."] + lista_panstw, index=idx_m)
         data["winner_result"] = oficjalny_mistrz if oficjalny_mistrz != "Turniej w trakcie..." else ""
         
+       st.markdown("---")
         st.subheader("⚽ Wpisz wyniki meczów")
+        
+        mecze_do_wpisania = []
+        mecze_wpisane = []
+        
+        # Sortowanie na zakończone bez wyniku i te już wpisane
         for match_id, match_info in MATCHES.items():
-            match_date_obj = datetime.strptime(match_info["date"], "%Y-%m-%d").date()
-            if match_date_obj <= dzisiaj_obj:
+            match_datetime_obj = datetime.strptime(f"{match_info['date']} {match_info['time']}", "%Y-%m-%d %H:%M")
+            # Mecz kończy się orientacyjnie 2 godziny po rozpoczęciu
+            match_end_time = match_datetime_obj + timedelta(hours=2)
+            
+            if czas_polska >= match_end_time:
+                if match_id in data["results"]:
+                    mecze_wpisane.append(match_id)
+                else:
+                    mecze_do_wpisania.append(match_id)
+        
+        nowe_wyniki = {}
+        edytowane_wyniki = {}
+        
+        # 1. MECZE DO WPISANIA
+        if mecze_do_wpisania:
+            st.markdown("#### 🔴 Zakończone, oczekujące na wynik")
+            st.info("Wpisz wynik i koniecznie zaznacz pole 'Zatwierdź ✅' pod meczem, który chcesz zapisać.")
+            for match_id in mecze_do_wpisania:
+                match_info = MATCHES[match_id]
                 flaga_h = FLAGS.get(match_info['home'], "🏳️")
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
-                st.markdown(f"### 📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
-                current_res = data["results"].get(match_id, [0, 0])
-                col1, col2 = st.columns(2)
-                with col1: res_h = st.number_input(f"Wynik {match_info['home']}", 0, 20, int(current_res[0]), key=f"rh_{match_id}")
-                with col2: res_a = st.number_input(f"Wynik {match_info['away']}", 0, 20, int(current_res[1]), key=f"ra_{match_id}")
-                data["results"][match_id] = [res_h, res_a]
+                st.markdown(f"**📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}**")
                 
-        if st.button("Aktualizuj dane i wyniki 📣"):
-            save_data(data)
-            st.success("Dane zaktualizowane!")
-            
+                col1, col2, col3 = st.columns([2, 2, 1.5])
+                with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, 0, key=f"rh_{match_id}")
+                with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, 0, key=f"ra_{match_id}")
+                with col3: 
+                    st.write("")
+                    st.write("")
+                    zatwierdz = st.checkbox("Zatwierdź ✅", key=f"gotowe_{match_id}")
+                
+                if zatwierdz:
+                    nowe_wyniki[match_id] = [res_h, res_a]
+        else:
+            st.success("Wszystkie zakończone mecze mają już wpisane wyniki!")
+
+        # 2. MECZE JUŻ WPISANE (W ROZWIJANYM MENU)
+        if mecze_wpisane:
+            with st.expander("✅ Wpisane mecze (Kliknij, aby rozwinąć i edytować wyniki)"):
+                for match_id in mecze_wpisane:
+                    match_info = MATCHES[match_id]
+                    current_res = data["results"][match_id]
+                    flaga_h = FLAGS.get(match_info['home'], "🏳️")
+                    flaga_a = FLAGS.get(match_info['away'], "🏳️")
+                    
+                    st.markdown(f"**{flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}**")
+                    col1, col2 = st.columns(2)
+                    with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_res[0]), key=f"edit_h_{match_id}")
+                    with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_res[1]), key=f"edit_a_{match_id}")
+                    
+                    # Edytowane wyniki zawsze trafiają do aktualizacji
+                    edytowane_wyniki[match_id] = [res_h, res_a]
+
+        if mecze_do_wpisania or mecze_wpisane:
+            if st.button("Zapisz wybrane wyniki 📣"):
+                # Zapisujemy tylko te nowe, które miały "ptaszka"
+                for m_id, res in nowe_wyniki.items():
+                    data["results"][m_id] = res
+                # Aktualizujemy te z rozwijanej listy
+                for m_id, res in edytowane_wyniki.items():
+                    data["results"][m_id] = res
+                    
+                save_data(data)
+                st.success("Wyniki zaktualizowane pomyślnie!")
+                st.rerun()
         # --- GENERATOR PRZYPOMNIEŃ WHATSAPP (MECZE NA JUTRO) ---
         st.markdown("---")
         st.subheader("📱 Przypomnienie WhatsApp (Mecze na Jutro)")
