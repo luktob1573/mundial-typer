@@ -315,7 +315,7 @@ with tab3:
         oficjalny_mistrz = st.selectbox("Kto oficjalnie wygrał Mundial?", ["Turniej w trakcie..."] + lista_panstw, index=idx_m)
         data["winner_result"] = oficjalny_mistrz if oficjalny_mistrz != "Turniej w trakcie..." else ""
         
-       st.markdown("---")
+        st.markdown("---")
         st.subheader("⚽ Wpisz wyniki meczów")
         
         mecze_do_wpisania = []
