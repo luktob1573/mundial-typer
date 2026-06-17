@@ -2,9 +2,10 @@ import streamlit as st
 import requests
 from datetime import datetime, timedelta
 import pandas as pd
+import json
+import urllib.parse
 
 # --- KONFIGURACJA CHMURY (JSONBin.io) ---
-# Wklej swoje klucze pomiędzy cudzysłowy poniżej:
 BIN_ID = "6a280281da38895dfe9ff2d4"
 API_KEY = "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm"
 
@@ -33,7 +34,9 @@ FLAGS = {
     "Anglia": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Chorwacja": "🇭🇷", "Ghana": "🇬🇭", "Panama": "🇵🇦", "Polska": "🇵🇱"
 }
 
-# --- BAZA MECZÓW Z DATAMI I GODZINAMI (Czas Warszawski - TVP Sport) ---
+lista_panstw = sorted(list(FLAGS.keys()))
+
+# --- BAZA MECZÓW Z DATAMI I GODZINAMI ---
 MATCHES = {
     "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-12", "time": "04:00", "home": "Korea Płd.", "away": "Czechy"},
@@ -117,9 +120,10 @@ def load_data():
         if "results" not in record: record["results"] = {}
         if "long_term" not in record: record["long_term"] = {}
         if "winner_result" not in record: record["winner_result"] = ""
+        if "jokers" not in record: record["jokers"] = {}
         return record
     except Exception:
-        return {"results": {}, "bets": {}}
+        return {"results": {}, "bets": {}, "long_term": {}, "winner_result": "", "jokers": {}}
 
 def save_data(data):
     requests.put(URL, json=data, headers=HEADERS)
@@ -163,6 +167,29 @@ jutro_obj = dzisiaj_obj + timedelta(days=1)
 
 st.write(f"📅 *Mecze dostępne na: **{dzisiaj_obj.strftime('%d.%m')}** oraz **{jutro_obj.strftime('%d.%m')}***")
 
+# --- WSTĘPNE OBLICZENIE TABELI (DLA MOTYWATORA) ---
+# Tabela uwzględnia wszystkich graczy, od indeksu 1 do końca (żeby pominąć "Wybierz swoje imię...")
+leaderboard_pre = {u: 0 for u in GRACZE[1:]}
+
+for user in GRACZE[1:]:
+    total_pts = 0
+    user_bets = data.get("bets", {}).get(user, {})
+    user_jokers = data.get("jokers", {}).get(user, [])
+    
+    for match_id, bet in user_bets.items():
+        if match_id in data.get("results", {}):
+            res = data["results"][match_id]
+            pts = calculate_points(bet[0], bet[1], res[0], res[1])
+            if match_id in user_jokers:
+                pts *= 2
+            total_pts += pts
+            
+    if data.get("winner_result") and data.get("long_term", {}).get(user) == data.get("winner_result"):
+        total_pts += 8
+    leaderboard_pre[user] = total_pts
+
+sorted_leaderboard = sorted(leaderboard_pre.items(), key=lambda x: x[1], reverse=True)
+
 tab1, tab2, tab3 = st.tabs(["🎯 Typuj", "🏆 Tabela", "⚙️ Admin"])
 
 # --- TAB 1: TYPOWANIE ---
@@ -172,12 +199,30 @@ with tab1:
     
     if user_name != "Wybierz swoje imię...":
         if user_name not in data["bets"]: data["bets"][user_name] = {}
+        if user_name not in data.get("jokers", {}): data.setdefault("jokers", {})[user_name] = []
         
+        # --- MOTYWATOR ---
+        st.markdown("---")
+        if sorted_leaderboard:
+            my_rank = next((i for i, v in enumerate(sorted_leaderboard) if v[0] == user_name), -1)
+            my_pts = leaderboard_pre.get(user_name, 0)
+            
+            if my_rank == 0 and my_pts > 0:
+                st.success(f"👑 **Cześć {user_name}!** Jesteś na samym szczycie z {my_pts} pkt! Uciekaj, bo gonią!")
+            elif my_rank == 0 and my_pts == 0:
+                st.success(f"👋 **Cześć {user_name}!** Turniej wystartował, do boju o pierwsze punkty!")
+            elif my_rank > 0:
+                leader_name, leader_pts = sorted_leaderboard[0]
+                diff = leader_pts - my_pts
+                if diff == 0:
+                    st.success(f"⚔️ **Cześć {user_name}!** Idziesz łeb w łeb z {leader_name} na 1. miejscu! Jeden dobry typ i odskakujesz!")
+                else:
+                    st.info(f"🚀 **Cześć {user_name}!** Masz {my_pts} pkt. Do lidera ({leader_name}) tracisz {diff} pkt. Użyj mądrze Jokera i gonimy!")
+
         # --- TYP DŁUGOTERMINOWY ---
         st.markdown("---")
         st.subheader("🏆 Twój Mistrz Świata")
         start_turnieju = datetime(2026, 6, 11, 21, 0)
-        lista_panstw = sorted(list(FLAGS.keys()))
         
         if czas_polska < start_turnieju:
             st.info("⏰ Masz czas do 11 czerwca do 21:00 na wytypowanie Mistrza Świata (+8 pkt na koniec!)")
@@ -211,14 +256,34 @@ with tab1:
                     with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
                     with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
                     data["bets"][user_name][match_id] = [score_home, score_away]
+                    
+                    # --- JOKERY UI ---
+                    user_jokers = data["jokers"].get(user_name, [])
+                    is_joker_active = match_id in user_jokers
+                    jokers_used = len(user_jokers)
+                    
+                    if is_joker_active or jokers_used < 3:
+                        zostalo = 3 - jokers_used if not is_joker_active else 3 - jokers_used + 1
+                        joker_label = f"🃏 Użyj Jokera (Punkty x2! Zostało: {zostalo}/3)"
+                        use_joker = st.checkbox(joker_label, value=is_joker_active, key=f"joker_{match_id}_{user_name}")
+                        
+                        if use_joker and not is_joker_active:
+                            data["jokers"][user_name].append(match_id)
+                        elif not use_joker and is_joker_active:
+                            data["jokers"][user_name].remove(match_id)
+                    else:
+                        st.caption("🃏 Wykorzystałeś już wszystkie 3 Jokery!")
+                        
                 else:
-                    # --- OPCJA 4: PODGLĄD TYPÓW NA ŻYWO ---
+                    # --- PODGLĄD TYPÓW NA ŻYWO ---
                     st.error("⏳ Mecz już się rozpoczął. Edycja zablokowana.")
                     st.markdown("**Typy rodziny na ten mecz:**")
-                    for gracz, gracz_bets in data.get("bets", {}).items():
+                    for gracz in GRACZE[1:]:
+                        gracz_bets = data.get("bets", {}).get(gracz, {})
                         if match_id in gracz_bets:
                             g_bet = gracz_bets[match_id]
-                            st.write(f"👤 **{gracz}**: `{int(g_bet[0])} : {int(g_bet[1])}`")
+                            joker_ikonka = " 🃏(JOKER!)" if match_id in data.get("jokers", {}).get(gracz, []) else ""
+                            st.write(f"👤 **{gracz}**: `{int(g_bet[0])} : {int(g_bet[1])}`{joker_ikonka}")
                 
         if licznik_meczow > 0 and czas_polska < start_turnieju or any(datetime.strptime(f"{m['date']} {m['time']}", "%Y-%m-%d %H:%M") > czas_polska for m in MATCHES.values() if datetime.strptime(m["date"], "%Y-%m-%d").date() in [dzisiaj_obj, jutro_obj]):
             if st.button("Zapisz zmiany 💾"):
@@ -229,56 +294,42 @@ with tab1:
 with tab2:
     st.header("🏆 Tabela Rodzinna")
     
-    bets_data = data.get("bets", {})
-    results_data = data.get("results", {})
-    long_term_data = data.get("long_term", {})
-    winner_result = data.get("winner_result", "")
+    punkty_dzis = {u: 0 for u in GRACZE[1:]}
     
-    leaderboard = {}
-    punkty_dzis = {}
-    
-    for user in bets_data.keys():
-        leaderboard[user] = 0
-        punkty_dzis[user] = 0
-        
-    # Liczenie punktów bieżących i dzisiejszych
-    for user, user_bets in bets_data.items():
-        total_pts = 0
+    for user in GRACZE[1:]:
+        user_bets = data.get("bets", {}).get(user, {})
         for match_id, bet in user_bets.items():
-            if match_id in results_data:
-                res = results_data[match_id]
+            if match_id in data.get("results", {}):
+                res = data["results"][match_id]
                 pts = calculate_points(bet[0], bet[1], res[0], res[1])
-                total_pts += pts
+                if match_id in data.get("jokers", {}).get(user, []):
+                    pts *= 2
                 if MATCHES[match_id]["date"] == dzisiaj_obj.strftime("%Y-%m-%d"):
                     punkty_dzis[user] += pts
         
-        # Dodanie bonusu +8 za długoterminowy typ
-        if winner_result and long_term_data.get(user) == winner_result:
-            total_pts += 8
-            
-        leaderboard[user] = total_pts
-        
-    # Wyświetlanie tabeli głównej
-    for idx, (player, pts) in enumerate(sorted(leaderboard.items(), key=lambda x: x[1], reverse=True), 1):
+    for idx, (player, pts) in enumerate(sorted_leaderboard, 1):
         medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
-        lt_info = f" (Typ: {long_term_data.get(player, 'brak')})" if long_term_data.get(player) else ""
-        st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt` *{lt_info}*")
+        lt_info = f" (Typ: {data.get('long_term', {}).get(player, 'brak')})" if data.get("long_term", {}).get(player) else ""
+        jokers_left = 3 - len(data.get("jokers", {}).get(player, []))
+        st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt` *{lt_info}* | Jokery: {jokers_left}/3")
         
-    # --- OPCJA 3: WYKRES FORMY ---
+    # --- WYKRES FORMY ---
     sorted_match_ids = sorted(MATCHES.keys(), key=lambda m: f"{MATCHES[m]['date']} {MATCHES[m]['time']}")
     history_points = {"Mecz": ["Start"]}
-    for user in bets_data.keys():
+    for user in GRACZE[1:]:
         history_points[user] = [0]
         
     for m_id in sorted_match_ids:
-        if m_id in results_data:
-            res = results_data[m_id]
+        if m_id in data.get("results", {}):
+            res = data["results"][m_id]
             history_points["Mecz"].append(m_id.split(" vs ")[0] + "-" + m_id.split(" vs ")[1])
-            for user in bets_data.keys():
-                user_bets = bets_data[user]
+            for user in GRACZE[1:]:
+                user_bets = data.get("bets", {}).get(user, {})
                 last_pts = history_points[user][-1]
                 if m_id in user_bets:
                     pts_gained = calculate_points(user_bets[m_id][0], user_bets[m_id][1], res[0], res[1])
+                    if m_id in data.get("jokers", {}).get(user, []):
+                        pts_gained *= 2
                     history_points[user].append(last_pts + pts_gained)
                 else:
                     history_points[user].append(last_pts)
@@ -289,7 +340,7 @@ with tab2:
         df_chart = pd.DataFrame(history_points).set_index("Mecz")
         st.line_chart(df_chart)
 
-    # --- OPCJA 1: TABLICA CHWAŁY I SZYDERSTWA ---
+    # --- TABLICA CHWAŁY I SZYDERSTWA ---
     if any(punkty_dzis.values()):
         st.markdown("---")
         st.subheader("🎭 Tablica Chwały i Szyderstwa (Wyniki z dziś)")
@@ -307,7 +358,7 @@ with tab2:
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
-    if st.text_input("Hasło:", type="password") == "1234":
+    if st.text_input("Hasło:", type="password") == "rodzina2026":
         
         st.subheader("🏆 Wynik Długoterminowy (Na koniec turnieju)")
         obecny_mistrz = data.get("winner_result", "")
@@ -321,14 +372,12 @@ with tab3:
         mecze_do_wpisania = []
         mecze_wpisane = []
         
-        # Sortowanie na zakończone bez wyniku i te już wpisane
         for match_id, match_info in MATCHES.items():
             match_datetime_obj = datetime.strptime(f"{match_info['date']} {match_info['time']}", "%Y-%m-%d %H:%M")
-            # Mecz kończy się orientacyjnie 2 godziny po rozpoczęciu
             match_end_time = match_datetime_obj + timedelta(hours=2)
             
             if czas_polska >= match_end_time:
-                if match_id in data["results"]:
+                if match_id in data.get("results", {}):
                     mecze_wpisane.append(match_id)
                 else:
                     mecze_do_wpisania.append(match_id)
@@ -336,17 +385,15 @@ with tab3:
         nowe_wyniki = {}
         edytowane_wyniki = {}
         
-        # 1. MECZE DO WPISANIA
         if mecze_do_wpisania:
             st.markdown("#### 🔴 Zakończone, oczekujące na wynik")
-            st.info("Wpisz wynik i koniecznie zaznacz pole 'Zatwierdź ✅' pod meczem, który chcesz zapisać.")
+            st.info("Wpisz wynik i koniecznie zaznacz pole 'Zatwierdź ✅' pod meczem.")
             for match_id in mecze_do_wpisania:
                 match_info = MATCHES[match_id]
                 flaga_h = FLAGS.get(match_info['home'], "🏳️")
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
                 st.markdown(f"**📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}**")
-                
                 col1, col2, col3 = st.columns([2, 2, 1.5])
                 with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, 0, key=f"rh_{match_id}")
                 with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, 0, key=f"ra_{match_id}")
@@ -360,9 +407,8 @@ with tab3:
         else:
             st.success("Wszystkie zakończone mecze mają już wpisane wyniki!")
 
-        # 2. MECZE JUŻ WPISANE (W ROZWIJANYM MENU)
         if mecze_wpisane:
-            with st.expander("✅ Wpisane mecze (Kliknij, aby rozwinąć i edytować wyniki)"):
+            with st.expander("✅ Wpisane mecze (Kliknij, aby edytować)"):
                 for match_id in mecze_wpisane:
                     match_info = MATCHES[match_id]
                     current_res = data["results"][match_id]
@@ -374,65 +420,39 @@ with tab3:
                     with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_res[0]), key=f"edit_h_{match_id}")
                     with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_res[1]), key=f"edit_a_{match_id}")
                     
-                    # Edytowane wyniki zawsze trafiają do aktualizacji
                     edytowane_wyniki[match_id] = [res_h, res_a]
 
         if mecze_do_wpisania or mecze_wpisane:
             if st.button("Zapisz wybrane wyniki 📣"):
-                # Zapisujemy tylko te nowe, które miały "ptaszka"
-                for m_id, res in nowe_wyniki.items():
-                    data["results"][m_id] = res
-                # Aktualizujemy te z rozwijanej listy
-                for m_id, res in edytowane_wyniki.items():
-                    data["results"][m_id] = res
-                    
+                for m_id, res in nowe_wyniki.items(): data["results"][m_id] = res
+                for m_id, res in edytowane_wyniki.items(): data["results"][m_id] = res
                 save_data(data)
                 st.success("Wyniki zaktualizowane pomyślnie!")
                 st.rerun()
-        # --- GENERATOR PRZYPOMNIEŃ WHATSAPP (MECZE NA JUTRO) ---
+            
         st.markdown("---")
-        st.subheader("📱 Przypomnienie WhatsApp (Mecze na Jutro)")
-        jutrzejsze_mecze = []
-        for m_id, info in MATCHES.items():
-            if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj:
-                jutrzejsze_mecze.append(f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})")
+        st.subheader("📱 Przypomnienie WhatsApp (Jutro)")
+        jutrzejsze_mecze = [f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})" for m_id, info in MATCHES.items() if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj]
                 
         if jutrzejsze_mecze:
-            LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
-            tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! Zobaczcie, co gramy jutro:\n\n"
-            tekst_wa += "\n".join(jutrzejsze_mecze)
-            tekst_wa += f"\n\nWarto obstawić już dzisiaj wieczorem, żeby nie przegapić porannych spotkań! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
-            
-            import urllib.parse
+            LINK_DO_APLIKACJI = "https://twoj-link-tutaj.streamlit.app" 
+            tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! Zobaczcie, co gramy jutro:\n\n" + "\n".join(jutrzejsze_mecze) + f"\n\nWarto obstawić już dzisiaj wieczorem, żeby nie przegapić porannych spotkań! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
             gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
             st.code(tekst_wa, language="text")
             st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-weight:bold;width:100%;">Wyślij na WhatsApp 💬</button></a>', unsafe_allow_html=True)
         else:
             st.success("Jutro nie ma meczów.")
-       # --- KOPIA ZAPASOWA (BACKUP) ---
+
         st.markdown("---")
         st.subheader("💾 Kopia Zapasowa (Backup)")
-        st.info("Pobierz aktualny stan tabeli, wszystkie typy i wpisane wyniki w postaci pliku awaryjnego.")
-        
-        import json
         kopia_json = json.dumps(data, indent=4)
-        st.download_button(
-            label="Pobierz kopię zapasową (Plik JSON) 📥",
-            data=kopia_json,
-            file_name=f"typer_backup_{dzisiaj_obj.strftime('%Y-%m-%d')}.json",
-            mime="application/json"
-        )     
-       # --- DWUETAPOWA STREFA AWARYJNA ---
+        st.download_button(label="Pobierz kopię zapasową (Plik JSON) 📥", data=kopia_json, file_name=f"typer_backup_{dzisiaj_obj.strftime('%Y-%m-%d')}.json", mime="application/json")
+            
         st.markdown("---")
         st.subheader("🚨 Strefa Awaryjna")
-        st.error("Uwaga! Ta operacja jest nieodwracalna. Całkowicie usunie wszystkie typy domowników oraz wpisane wyniki.")
-        
-        # Etap 1: Pole potwierdzenia (Checkbox)
         zabezpieczenie = st.checkbox("Rozumiem konsekwencje. Odblokuj przycisk resetu.")
-        
-        # Etap 2: Właściwy przycisk (pojawia się tylko, gdy pole wyżej jest zaznaczone)
         if zabezpieczenie:
             if st.button("🔴 OSTATECZNIE WYZERUJ CAŁY TURNIEJ 🔴"):
-                save_data({"results": {}, "bets": {}, "long_term": {}, "winner_result": ""})
-                st.success("Wszystko zostało bezpowrotnie wyczyszczone. Tabela jest znów pusta!")
+                save_data({"results": {}, "bets": {}, "long_term": {}, "winner_result": "", "jokers": {}})
+                st.success("Wszystko zostało wyczyszczone!")
                 st.rerun()
