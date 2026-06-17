@@ -358,7 +358,7 @@ with tab2:
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
-    if st.text_input("Hasło:", type="password") == "rodzina2026":
+    if st.text_input("Hasło:", type="password") == "1234":
         
         st.subheader("🏆 Wynik Długoterminowy (Na koniec turnieju)")
         obecny_mistrz = data.get("winner_result", "")
