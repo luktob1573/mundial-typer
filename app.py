@@ -435,7 +435,7 @@ with tab3:
         jutrzejsze_mecze = [f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})" for m_id, info in MATCHES.items() if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj]
                 
         if jutrzejsze_mecze:
-            LINK_DO_APLIKACJI = "https://twoj-link-tutaj.streamlit.app" 
+            LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
             tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! Zobaczcie, co gramy jutro:\n\n" + "\n".join(jutrzejsze_mecze) + f"\n\nWarto obstawić już dzisiaj wieczorem, żeby nie przegapić porannych spotkań! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
             gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
             st.code(tekst_wa, language="text")
