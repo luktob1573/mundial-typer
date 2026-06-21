@@ -236,7 +236,7 @@ with tab1:
             st.warning(f"🔒 Typowanie zamknięte. Twój wybór to: **{wybrany}**")
             
         st.markdown("---")
-        st.subheader("⚽ Bieżące mecze")
+                st.subheader("⚽ Bieżące mecze")
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
@@ -275,8 +275,13 @@ with tab1:
                         st.caption("🃏 Wykorzystałeś już wszystkie 3 Jokery!")
                         
                 else:
-                    # --- PODGLĄD TYPÓW NA ŻYWO ---
-                    st.error("⏳ Mecz już się rozpoczął. Edycja zablokowana.")
+                    # --- PODGLĄD TYPÓW NA ŻYWO ORAZ WYNIK KOŃCOWY ---
+                    if match_id in data.get("results", {}):
+                        res_h, res_a = data["results"][match_id]
+                        st.success(f"🏁 **WYNIK KOŃCOWY: {int(res_h)} : {int(res_a)}**")
+                    else:
+                        st.error("⏳ Mecz trwa (lub czeka na wynik). Edycja zablokowana.")
+                        
                     st.markdown("**Typy rodziny na ten mecz:**")
                     for gracz in GRACZE[1:]:
                         gracz_bets = data.get("bets", {}).get(gracz, {})
@@ -289,6 +294,7 @@ with tab1:
             if st.button("Zapisz zmiany 💾"):
                 save_data(data)
                 st.success("Wszystko zapisane!")
+
 
 # --- TAB 2: TABELA I STATYSTYKI ---
 with tab2:
