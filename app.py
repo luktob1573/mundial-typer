@@ -236,7 +236,7 @@ with tab1:
             st.warning(f"🔒 Typowanie zamknięte. Twój wybór to: **{wybrany}**")
             
         st.markdown("---")
-                st.subheader("⚽ Bieżące mecze")
+        st.subheader("⚽ Bieżące mecze")
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
