@@ -36,8 +36,9 @@ FLAGS = {
 
 lista_panstw = sorted(list(FLAGS.keys()))
 
-# --- BAZA MECZÓW Z DATAMI I GODZINAMI ---
+    # --- BAZA MECZÓW Z DATAMI I GODZINAMI ---
 MATCHES = {
+    # --- FAZA GRUPOWA (ZACHOWANA DLA HISTORII I WYKRESÓW) ---
     "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
     "Korea Płd. vs Czechy": {"date": "2026-06-12", "time": "04:00", "home": "Korea Płd.", "away": "Czechy"},
     "Kanada vs Bośnia i Herc.": {"date": "2026-06-12", "time": "21:00", "home": "Kanada", "away": "Bośnia i Herc."},
@@ -109,8 +110,27 @@ MATCHES = {
     "Kolumbia vs Portugalia": {"date": "2026-06-28", "time": "01:30", "home": "Kolumbia", "away": "Portugalia"},
     "DR Konga vs Uzbekistan": {"date": "2026-06-28", "time": "01:30", "home": "DR Konga", "away": "Uzbekistan"},
     "Jordania vs Argentyna": {"date": "2026-06-28", "time": "04:00", "home": "Jordania", "away": "Argentyna"},
-    "Algieria vs Austria": {"date": "2026-06-28", "time": "04:00", "home": "Algieria", "away": "Austria"}
+    "Algieria vs Austria": {"date": "2026-06-28", "time": "04:00", "home": "Algieria", "away": "Austria"},
+    
+    # --- NOWA FAZA 1/16 FINAŁU ---
+    "RPA vs Kanada": {"date": "2026-06-28", "time": "21:00", "home": "RPA", "away": "Kanada"},
+    "Brazylia vs Japonia": {"date": "2026-06-29", "time": "19:00", "home": "Brazylia", "away": "Japonia"},
+    "Niemcy vs Paragwaj": {"date": "2026-06-29", "time": "22:30", "home": "Niemcy", "away": "Paragwaj"},
+    "Holandia vs Maroko": {"date": "2026-06-30", "time": "03:00", "home": "Holandia", "away": "Maroko"},
+    "WKS vs Norwegia": {"date": "2026-06-30", "time": "19:00", "home": "WKS", "away": "Norwegia"},
+    "Francja vs Szwecja": {"date": "2026-06-30", "time": "23:00", "home": "Francja", "away": "Szwecja"},
+    "Meksyk vs Ekwador": {"date": "2026-07-01", "time": "03:00", "home": "Meksyk", "away": "Ekwador"},
+    "Anglia vs DR Konga": {"date": "2026-07-01", "time": "18:00", "home": "Anglia", "away": "DR Konga"},
+    "Belgia vs Senegal": {"date": "2026-07-01", "time": "22:00", "home": "Belgia", "away": "Senegal"},
+    "USA vs Bośnia i Herc.": {"date": "2026-07-02", "time": "02:00", "home": "USA", "away": "Bośnia i Herc."},
+    "Hiszpania vs Austria": {"date": "2026-07-02", "time": "21:00", "home": "Hiszpania", "away": "Austria"},
+    "Portugalia vs Chorwacja": {"date": "2026-07-03", "time": "01:00", "home": "Portugalia", "away": "Chorwacja"},
+    "Szwajcaria vs Algieria": {"date": "2026-07-03", "time": "05:00", "home": "Szwajcaria", "away": "Algieria"},
+    "Australia vs Egipt": {"date": "2026-07-03", "time": "20:00", "home": "Australia", "away": "Egipt"},
+    "Argentyna vs Rep. Z. Przyl.": {"date": "2026-07-04", "time": "00:00", "home": "Argentyna", "away": "Rep. Z. Przyl."},
+    "Kolumbia vs Ghana": {"date": "2026-07-04", "time": "03:30", "home": "Kolumbia", "away": "Ghana"}
 }
+
 
 def load_data():
     try:
