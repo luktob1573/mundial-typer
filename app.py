@@ -385,7 +385,7 @@ with tab2:
         seed2 = urllib.parse.quote(p2)
         seed3 = urllib.parse.quote(p3)
 
-                podium_html = f"""
+        podium_html = f"""
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 30px; margin-top: 20px;">
             <div style="margin-bottom: 10px;">
                 <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed2}" width="90" style="border-radius: 50%; border: 4px solid silver; background: white; padding: 2px;">
