@@ -36,7 +36,7 @@ FLAGS = {
 
 lista_panstw = sorted(list(FLAGS.keys()))
 
-    # --- BAZA MECZÓW Z DATAMI I GODZINAMI ---
+# --- BAZA MECZÓW Z DATAMI I GODZINAMI ---
 MATCHES = {
     # --- FAZA GRUPOWA (ZACHOWANA DLA HISTORII I WYKRESÓW) ---
     "Meksyk vs RPA": {"date": "2026-06-11", "time": "21:00", "home": "Meksyk", "away": "RPA"},
@@ -131,7 +131,6 @@ MATCHES = {
     "Kolumbia vs Ghana": {"date": "2026-07-04", "time": "03:30", "home": "Kolumbia", "away": "Ghana"}
 }
 
-
 def load_data():
     try:
         response = requests.get(URL, headers={"X-Master-Key": API_KEY})
@@ -150,13 +149,20 @@ def save_data(data):
 
 data = load_data()
 
-def calculate_points(bet_home, bet_away, res_home, res_away):
-    if res_home is None or res_away is None: return 0
-    if bet_home == res_home and bet_away == res_away: return 3
-    if (bet_home > bet_away and res_home > res_away) or \
-       (bet_home < bet_away and res_home < res_away) or \
-       (bet_home == bet_away and res_home == res_away): return 1
-    return 0
+def calculate_points(bet_h, bet_a, res_h, res_a, bet_pen=False, res_pen=False):
+    if res_h is None or res_a is None: return 0
+    pts = 0
+    
+    if bet_h == res_h and bet_a == res_a:
+        pts = 3
+    elif (bet_h > bet_a and res_h > res_a) or (bet_h < bet_a and res_h < res_a) or (bet_h == bet_a and res_h == res_a):
+        pts = 1
+        
+    # LOGIKA OPCJI 2: Ekstra punkt za rzuty karne (tylko w fazie pucharowej i TYLKO gdy gracz obstawił remis)
+    if bet_pen and res_pen and bet_h == bet_a:
+        pts += 1
+        
+    return pts
 
 st.set_page_config(page_title="Rodzinny Typer", page_icon="⚽", layout="centered")
 
@@ -187,22 +193,46 @@ jutro_obj = dzisiaj_obj + timedelta(days=1)
 
 st.write(f"📅 *Mecze dostępne na: **{dzisiaj_obj.strftime('%d.%m')}** oraz **{jutro_obj.strftime('%d.%m')}***")
 
-# --- WSTĘPNE OBLICZENIE TABELI (DLA MOTYWATORA) ---
-# Tabela uwzględnia wszystkich graczy, od indeksu 1 do końca (żeby pominąć "Wybierz swoje imię...")
+# --- WSTĘPNE OBLICZENIE TABELI I ODZNAK ---
 leaderboard_pre = {u: 0 for u in GRACZE[1:]}
+user_badges = {u: [] for u in GRACZE[1:]}
 
 for user in GRACZE[1:]:
     total_pts = 0
+    zero_zero_count = 0
+    draw_count = 0
+    pechowiec = False
+    
     user_bets = data.get("bets", {}).get(user, {})
     user_jokers = data.get("jokers", {}).get(user, [])
     
     for match_id, bet in user_bets.items():
+        bet_h, bet_a = bet[0], bet[1]
+        bet_pen = bet[2] if len(bet) > 2 else False
+        
+        # Obliczanie odznak (tylko na podstawie oddanych typów)
+        if bet_h == 0 and bet_a == 0: zero_zero_count += 1
+        if bet_h == bet_a: draw_count += 1
+        
         if match_id in data.get("results", {}):
             res = data["results"][match_id]
-            pts = calculate_points(bet[0], bet[1], res[0], res[1])
+            res_h, res_a = res[0], res[1]
+            res_pen = res[2] if len(res) > 2 else False
+            
+            pts = calculate_points(bet_h, bet_a, res_h, res_a, bet_pen, res_pen)
+            
+            # Weryfikacja odznaki "Pechowiec" (Joker = 0 pkt)
+            if match_id in user_jokers and pts == 0:
+                pechowiec = True
+                
             if match_id in user_jokers:
                 pts *= 2
             total_pts += pts
+            
+    # Przydział odznak
+    if pechowiec: user_badges[user].append("🤡")
+    if draw_count >= 5: user_badges[user].append("🤝")
+    if zero_zero_count >= 3: user_badges[user].append("🛡️")
             
     if data.get("winner_result") and data.get("long_term", {}).get(user) == data.get("winner_result"):
         total_pts += 8
@@ -260,8 +290,10 @@ with tab1:
         
         licznik_meczow = 0
         for match_id, match_info in MATCHES.items():
-            match_date_obj = datetime.strptime(match_info["date"], "%Y-%m-%d").date()
-            match_datetime_obj = datetime.strptime(f"{match_info['date']} {match_info['time']}", "%Y-%m-%d %H:%M")
+            match_date_str = match_info["date"]
+            match_date_obj = datetime.strptime(match_date_str, "%Y-%m-%d").date()
+            match_datetime_obj = datetime.strptime(f"{match_date_str} {match_info['time']}", "%Y-%m-%d %H:%M")
+            is_knockout = match_date_str >= "2026-06-28"
             
             if dzisiaj_obj <= match_date_obj <= jutro_obj:
                 licznik_meczow += 1
@@ -269,13 +301,24 @@ with tab1:
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
                 st.markdown(f"### 📅 {match_info['date']} ⏰ {match_info['time']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}")
-                current_bet = data["bets"][user_name].get(match_id, [0, 0])
+                
+                current_bet = data["bets"][user_name].get(match_id, [0, 0, False])
+                bet_h, bet_a = current_bet[0], current_bet[1]
+                bet_pen = current_bet[2] if len(current_bet) > 2 else False
                 
                 if czas_polska < match_datetime_obj:
                     col1, col2 = st.columns(2)
-                    with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_bet[0]), key=f"bh_{match_id}_{user_name}")
-                    with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_bet[1]), key=f"ba_{match_id}_{user_name}")
-                    data["bets"][user_name][match_id] = [score_home, score_away]
+                    with col1: score_home = st.number_input(f"Gole {match_info['home']}", 0, 20, int(bet_h), key=f"bh_{match_id}_{user_name}")
+                    with col2: score_away = st.number_input(f"Gole {match_info['away']}", 0, 20, int(bet_a), key=f"ba_{match_id}_{user_name}")
+                    
+                    # Checkbox na karne (Tylko w fazie pucharowej) z blokadą logiczną
+                    wants_penalties = False
+                    if is_knockout:
+                        wants_penalties = st.checkbox("🥅 Mecz rozstrzygną rzuty karne? (+1 pkt za trafienie)", value=bet_pen, key=f"pen_{match_id}_{user_name}")
+                        if wants_penalties and score_home != score_away:
+                            st.warning("⚠️ Pamiętaj: System zaliczy punkty za karne TYLKO, jeśli wytypujesz w tym meczu remis (np. 1:1, 0:0).")
+                    
+                    data["bets"][user_name][match_id] = [score_home, score_away, wants_penalties]
                     
                     # --- JOKERY UI ---
                     user_jokers = data["jokers"].get(user_name, [])
@@ -297,8 +340,13 @@ with tab1:
                 else:
                     # --- PODGLĄD TYPÓW NA ŻYWO ORAZ WYNIK KOŃCOWY ---
                     if match_id in data.get("results", {}):
-                        res_h, res_a = data["results"][match_id]
-                        st.success(f"🏁 **WYNIK KOŃCOWY: {int(res_h)} : {int(res_a)}**")
+                        res = data["results"][match_id]
+                        res_h, res_a = res[0], res[1]
+                        res_pen = res[2] if len(res) > 2 else False
+                        
+                        wynik_str = f"🏁 **WYNIK KOŃCOWY: {int(res_h)} : {int(res_a)}**"
+                        if res_pen: wynik_str += " *(po rzutach karnych)*"
+                        st.success(wynik_str)
                     else:
                         st.error("⏳ Mecz trwa (lub czeka na wynik). Edycja zablokowana.")
                         
@@ -307,14 +355,20 @@ with tab1:
                         gracz_bets = data.get("bets", {}).get(gracz, {})
                         if match_id in gracz_bets:
                             g_bet = gracz_bets[match_id]
-                            joker_ikonka = " 🃏(JOKER!)" if match_id in data.get("jokers", {}).get(gracz, []) else ""
-                            st.write(f"👤 **{gracz}**: `{int(g_bet[0])} : {int(g_bet[1])}`{joker_ikonka}")
+                            g_bet_h, g_bet_a = g_bet[0], g_bet[1]
+                            g_bet_pen = g_bet[2] if len(g_bet) > 2 else False
+                            
+                            ikonki = []
+                            if match_id in data.get("jokers", {}).get(gracz, []): ikonki.append("🃏")
+                            if g_bet_pen: ikonki.append("🥅(Karne)")
+                            ikonki_str = f" {' '.join(ikonki)}" if ikonki else ""
+                            
+                            st.write(f"👤 **{gracz}**: `{int(g_bet_h)} : {int(g_bet_a)}`{ikonki_str}")
                 
         if licznik_meczow > 0 and czas_polska < start_turnieju or any(datetime.strptime(f"{m['date']} {m['time']}", "%Y-%m-%d %H:%M") > czas_polska for m in MATCHES.values() if datetime.strptime(m["date"], "%Y-%m-%d").date() in [dzisiaj_obj, jutro_obj]):
             if st.button("Zapisz zmiany 💾"):
                 save_data(data)
                 st.success("Wszystko zapisane!")
-
 
 # --- TAB 2: TABELA I STATYSTYKI ---
 with tab2:
@@ -326,8 +380,14 @@ with tab2:
         user_bets = data.get("bets", {}).get(user, {})
         for match_id, bet in user_bets.items():
             if match_id in data.get("results", {}):
+                bet_h, bet_a = bet[0], bet[1]
+                bet_pen = bet[2] if len(bet) > 2 else False
+                
                 res = data["results"][match_id]
-                pts = calculate_points(bet[0], bet[1], res[0], res[1])
+                res_h, res_a = res[0], res[1]
+                res_pen = res[2] if len(res) > 2 else False
+                
+                pts = calculate_points(bet_h, bet_a, res_h, res_a, bet_pen, res_pen)
                 if match_id in data.get("jokers", {}).get(user, []):
                     pts *= 2
                 if MATCHES[match_id]["date"] == dzisiaj_obj.strftime("%Y-%m-%d"):
@@ -335,9 +395,18 @@ with tab2:
         
     for idx, (player, pts) in enumerate(sorted_leaderboard, 1):
         medal = "🥇" if idx == 1 else "🥈" if idx == 2 else "🥉" if idx == 3 else "🏃"
-        lt_info = f" (Typ: {data.get('long_term', {}).get(player, 'brak')})" if data.get("long_term", {}).get(player) else ""
+        lt_info = f" *(Typ: {data.get('long_term', {}).get(player, 'brak')})*" if data.get("long_term", {}).get(player) else ""
         jokers_left = 3 - len(data.get("jokers", {}).get(player, []))
-        st.markdown(f"#### {medal} {idx}. **{player}** — `{pts} pkt` *{lt_info}* | Jokery: {jokers_left}/3")
+        odznaki = "".join(user_badges[player])
+        
+        st.markdown(f"#### {medal} {idx}. **{player}** {odznaki} — `{pts} pkt`{lt_info} | Jokery: {jokers_left}/3")
+        
+    with st.expander("ℹ️ Co oznaczają odznaki w tabeli?"):
+        st.markdown("""
+        * 🤡 **Pechowiec:** Użył Jokera w trakcie turnieju, ale nie zdobył za ten mecz ani jednego punktu.
+        * 🤝 **Król Remisów:** Wytypował przynajmniej 5 remisów na przestrzeni całego turnieju.
+        * 🛡️ **Ekspert Defensywy:** Wytypował przynajmniej 3 bezbramkowe wyniki (0:0).
+        """)
         
     # --- WYKRES FORMY ---
     sorted_match_ids = sorted(MATCHES.keys(), key=lambda m: f"{MATCHES[m]['date']} {MATCHES[m]['time']}")
@@ -348,12 +417,20 @@ with tab2:
     for m_id in sorted_match_ids:
         if m_id in data.get("results", {}):
             res = data["results"][m_id]
+            res_h, res_a = res[0], res[1]
+            res_pen = res[2] if len(res) > 2 else False
+            
             history_points["Mecz"].append(m_id.split(" vs ")[0] + "-" + m_id.split(" vs ")[1])
+            
             for user in GRACZE[1:]:
                 user_bets = data.get("bets", {}).get(user, {})
                 last_pts = history_points[user][-1]
                 if m_id in user_bets:
-                    pts_gained = calculate_points(user_bets[m_id][0], user_bets[m_id][1], res[0], res[1])
+                    bet = user_bets[m_id]
+                    bet_h, bet_a = bet[0], bet[1]
+                    bet_pen = bet[2] if len(bet) > 2 else False
+                    
+                    pts_gained = calculate_points(bet_h, bet_a, res_h, res_a, bet_pen, res_pen)
                     if m_id in data.get("jokers", {}).get(user, []):
                         pts_gained *= 2
                     history_points[user].append(last_pts + pts_gained)
@@ -384,7 +461,7 @@ with tab2:
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
-    if st.text_input("Hasło:", type="password") == "1234":
+    if st.text_input("Hasło:", type="password") == "rodzina2026":
         
         st.subheader("🏆 Wynik Długoterminowy (Na koniec turnieju)")
         obecny_mistrz = data.get("winner_result", "")
@@ -416,37 +493,52 @@ with tab3:
             st.info("Wpisz wynik i koniecznie zaznacz pole 'Zatwierdź ✅' pod meczem.")
             for match_id in mecze_do_wpisania:
                 match_info = MATCHES[match_id]
+                match_date_str = match_info["date"]
+                is_knockout = match_date_str >= "2026-06-28"
+                
                 flaga_h = FLAGS.get(match_info['home'], "🏳️")
                 flaga_a = FLAGS.get(match_info['away'], "🏳️")
                 
                 st.markdown(f"**📅 {match_info['date']} | {flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}**")
-                col1, col2, col3 = st.columns([2, 2, 1.5])
+                col1, col2 = st.columns(2)
                 with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, 0, key=f"rh_{match_id}")
                 with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, 0, key=f"ra_{match_id}")
-                with col3: 
-                    st.write("")
-                    st.write("")
-                    zatwierdz = st.checkbox("Zatwierdź ✅", key=f"gotowe_{match_id}")
+                
+                was_penalty = False
+                if is_knockout:
+                    was_penalty = st.checkbox("Mecz zakończył się rzutami karnymi?", key=f"adm_pen_{match_id}")
+                
+                zatwierdz = st.checkbox("Zatwierdź Wynik ✅", key=f"gotowe_{match_id}")
+                st.markdown("---")
                 
                 if zatwierdz:
-                    nowe_wyniki[match_id] = [res_h, res_a]
+                    nowe_wyniki[match_id] = [res_h, res_a, was_penalty]
         else:
             st.success("Wszystkie zakończone mecze mają już wpisane wyniki!")
 
         if mecze_wpisane:
             with st.expander("✅ Wpisane mecze (Kliknij, aby edytować)"):
-                for match_id in mecze_wpisane:
+                for match_id in reversed(mecze_wpisane):
                     match_info = MATCHES[match_id]
                     current_res = data["results"][match_id]
+                    
+                    c_res_h, c_res_a = current_res[0], current_res[1]
+                    c_res_pen = current_res[2] if len(current_res) > 2 else False
+                    is_knockout = match_info["date"] >= "2026-06-28"
+                    
                     flaga_h = FLAGS.get(match_info['home'], "🏳️")
                     flaga_a = FLAGS.get(match_info['away'], "🏳️")
                     
                     st.markdown(f"**{flaga_h} {match_info['home']} vs {match_info['away']} {flaga_a}**")
                     col1, col2 = st.columns(2)
-                    with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, int(current_res[0]), key=f"edit_h_{match_id}")
-                    with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, int(current_res[1]), key=f"edit_a_{match_id}")
+                    with col1: res_h = st.number_input(f"Gole {match_info['home']}", 0, 20, int(c_res_h), key=f"edit_h_{match_id}")
+                    with col2: res_a = st.number_input(f"Gole {match_info['away']}", 0, 20, int(c_res_a), key=f"edit_a_{match_id}")
                     
-                    edytowane_wyniki[match_id] = [res_h, res_a]
+                    was_penalty = c_res_pen
+                    if is_knockout:
+                        was_penalty = st.checkbox("Mecz zakończył się rzutami karnymi?", value=c_res_pen, key=f"edit_pen_{match_id}")
+                    
+                    edytowane_wyniki[match_id] = [res_h, res_a, was_penalty]
 
         if mecze_do_wpisania or mecze_wpisane:
             if st.button("Zapisz wybrane wyniki 📣"):
@@ -462,7 +554,7 @@ with tab3:
                 
         if jutrzejsze_mecze:
             LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
-            tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! Zobaczcie, co gramy jutro:\n\n" + "\n".join(jutrzejsze_mecze) + f"\n\nWarto obstawić już dzisiaj wieczorem, żeby nie przegapić porannych spotkań! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
+            tekst_wa = "⚽ Hej rodzinko! Można już typować JUTRZEJSZE mecze na Mundialu! W fazie pucharowej gramy podwójnie ryzykownie - typujemy rzuty karne! 🥅 Zobaczcie, co gramy jutro:\n\n" + "\n".join(jutrzejsze_mecze) + f"\n\nNie przegapcie! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
             gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
             st.code(tekst_wa, language="text")
             st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-weight:bold;width:100%;">Wyślij na WhatsApp 💬</button></a>', unsafe_allow_html=True)
