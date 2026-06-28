@@ -374,6 +374,39 @@ with tab1:
 with tab2:
     st.header("🏆 Tabela Rodzinna")
     
+    # --- NOWE: GRAFICZNE PODIUM Z AWATARAMI DICEBEAR ---
+    if len(sorted_leaderboard) >= 3:
+        p1, pts1 = sorted_leaderboard[0]
+        p2, pts2 = sorted_leaderboard[1]
+        p3, pts3 = sorted_leaderboard[2]
+        
+        # Parsowanie imion dla pewności, że polskie znaki w linku zadziałają
+        seed1 = urllib.parse.quote(p1)
+        seed2 = urllib.parse.quote(p2)
+        seed3 = urllib.parse.quote(p3)
+
+        podium_html = f"""
+        <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 30px; margin-top: 20px;">
+            <div style="margin-bottom: 10px;">
+                <img src="https://api.dicebear.com/8.x/fun-emoji/svg?seed={seed2}" width="90" style="border-radius: 50%; border: 4px solid silver; background: white; padding: 2px;">
+                <p style="margin: 5px 0 0 0; font-size: 16px;"><b>🥈 {p2}</b></p>
+                <p style="margin: 0; font-size: 14px; color: #ccc;">{pts2} pkt</p>
+            </div>
+            <div>
+                <img src="https://api.dicebear.com/8.x/fun-emoji/svg?seed={seed1}" width="120" style="border-radius: 50%; border: 4px solid gold; background: white; padding: 2px;">
+                <p style="margin: 5px 0 0 0; font-size: 20px;"><b>🥇 {p1}</b></p>
+                <p style="margin: 0; font-size: 15px; color: #ffd700;"><b>{pts1} pkt</b></p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <img src="https://api.dicebear.com/8.x/fun-emoji/svg?seed={seed3}" width="80" style="border-radius: 50%; border: 4px solid #cd7f32; background: white; padding: 2px;">
+                <p style="margin: 5px 0 0 0; font-size: 15px;"><b>🥉 {p3}</b></p>
+                <p style="margin: 0; font-size: 14px; color: #ccc;">{pts3} pkt</p>
+            </div>
+        </div>
+        """
+        st.markdown(podium_html, unsafe_allow_html=True)
+        st.markdown("---")
+    
     punkty_dzis = {u: 0 for u in GRACZE[1:]}
     
     for user in GRACZE[1:]:
@@ -461,7 +494,7 @@ with tab2:
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
-    if st.text_input("Hasło:", type="password") == "1111":
+    if st.text_input("Hasło:", type="password") == "rodzina2026":
         
         st.subheader("🏆 Wynik Długoterminowy (Na koniec turnieju)")
         obecny_mistrz = data.get("winner_result", "")
