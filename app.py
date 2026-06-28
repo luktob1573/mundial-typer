@@ -385,25 +385,26 @@ with tab2:
         seed2 = urllib.parse.quote(p2)
         seed3 = urllib.parse.quote(p3)
 
-        podium_html = f"""
+                podium_html = f"""
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 30px; margin-top: 20px;">
             <div style="margin-bottom: 10px;">
-                <img src="https://api.dicebear.com/8.x/fun-emoji/svg?seed={seed2}" width="90" style="border-radius: 50%; border: 4px solid silver; background: white; padding: 2px;">
+                <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed2}" width="90" style="border-radius: 50%; border: 4px solid silver; background: white; padding: 2px;">
                 <p style="margin: 5px 0 0 0; font-size: 16px;"><b>🥈 {p2}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts2} pkt</p>
             </div>
             <div>
-                <img src="https://api.dicebear.com/8.x/fun-emoji/svg?seed={seed1}" width="120" style="border-radius: 50%; border: 4px solid gold; background: white; padding: 2px;">
+                <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed1}" width="120" style="border-radius: 50%; border: 4px solid gold; background: white; padding: 2px;">
                 <p style="margin: 5px 0 0 0; font-size: 20px;"><b>🥇 {p1}</b></p>
                 <p style="margin: 0; font-size: 15px; color: #ffd700;"><b>{pts1} pkt</b></p>
             </div>
             <div style="margin-bottom: 20px;">
-                <img src="https://api.dicebear.com/8.x/fun-emoji/svg?seed={seed3}" width="80" style="border-radius: 50%; border: 4px solid #cd7f32; background: white; padding: 2px;">
+                <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed3}" width="80" style="border-radius: 50%; border: 4px solid #cd7f32; background: white; padding: 2px;">
                 <p style="margin: 5px 0 0 0; font-size: 15px;"><b>🥉 {p3}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts3} pkt</p>
             </div>
         </div>
         """
+
         st.markdown(podium_html, unsafe_allow_html=True)
         st.markdown("---")
     
