@@ -473,6 +473,20 @@ with tab2:
             prefix = "female" if name in zenske else "male"
             return f"https://api.dicebear.com/8.x/notionists/svg?seed={urllib.parse.quote(name)}&style=notionists&gender={prefix}"
 
+            # --- PODIUM ---
+    if len(sorted_leaderboard) >= 3:
+        p1, pts1 = sorted_leaderboard[0]
+        p2, pts2 = sorted_leaderboard[1]
+        p3, pts3 = sorted_leaderboard[2]
+        
+        # Poprawna lista imion żeńskich
+        zenskie_lista = ["Natalia", "Babcia Ania", "Karolina", "Ala", "Asia", "Babcia Asia", "Wiki"]
+        
+        def get_avatar_url(name):
+            # Używamy poprawnej nazwy listy 'zenskie_lista'
+            prefix = "female" if name in zenske_lista else "male"
+            return f"https://api.dicebear.com/8.x/notionists/svg?seed={urllib.parse.quote(name)}&gender={prefix}"
+
         podium_html = f"""
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
             <!-- Srebro -->
@@ -501,6 +515,9 @@ with tab2:
             </div>
         </div>
         """
+        st.markdown(podium_html, unsafe_allow_html=True)
+        st.markdown("---")
+
         st.markdown(podium_html, unsafe_allow_html=True)
         st.markdown("---")
 
