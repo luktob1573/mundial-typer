@@ -459,34 +459,51 @@ with tab2:
         seed2 = urllib.parse.quote(p2)
         seed3 = urllib.parse.quote(p3)
 
+            # --- PODIUM ---
+    if len(sorted_leaderboard) >= 3:
+        p1, pts1 = sorted_leaderboard[0]
+        p2, pts2 = sorted_leaderboard[1]
+        p3, pts3 = sorted_leaderboard[2]
+        
+        # Logika płci (dodaj imiona żeńskie do tej listy)
+        zenskie = ["Natalia", "Babcia Ania", "Karolina", "Ala", "Asia", "Babcia Asia", "Wiki"]
+        
+        def get_avatar_url(name):
+            # Używamy różnych "seedów" dla kobiet i mężczyzn w stylu notionists
+            prefix = "female" if name in zenske else "male"
+            return f"https://api.dicebear.com/8.x/notionists/svg?seed={urllib.parse.quote(name)}&style=notionists&gender={prefix}"
+
         podium_html = f"""
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
             <!-- Srebro -->
             <div style="margin-bottom: 10px;">
-                <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center;">
-                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed={seed2}" width="90">
+                <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <img src="{get_avatar_url(p2)}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 16px; color: #fff;"><b>🥈 {p2}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts2} pkt</p>
             </div>
             <!-- Złoto -->
             <div>
-                <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FFD700; background: #fff; display: flex; align-items: center; justify-content: center;">
-                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed={seed1}" width="110">
+                <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FFD700; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <img src="{get_avatar_url(p1)}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 20px; color: #fff;"><b>🥇 {p1}</b></p>
                 <p style="margin: 0; font-size: 16px; color: #FFD700;"><b>{pts1} pkt</b></p>
             </div>
             <!-- Brąz -->
             <div style="margin-bottom: 20px;">
-                <div style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #CD7F32; background: #fff; display: flex; align-items: center; justify-content: center;">
-                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed={seed3}" width="80">
+                <div style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #CD7F32; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <img src="{get_avatar_url(p3)}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 15px; color: #fff;"><b>🥉 {p3}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts3} pkt</p>
             </div>
         </div>
         """
+        st.markdown(podium_html, unsafe_allow_html=True)
+        st.markdown("---")
+
 
 
         st.markdown(podium_html, unsafe_allow_html=True)
