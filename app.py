@@ -460,24 +460,34 @@ with tab2:
         seed3 = urllib.parse.quote(p3)
 
         podium_html = f"""
-        <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 30px; margin-top: 20px;">
+        <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
+            <!-- Srebro -->
             <div style="margin-bottom: 10px;">
-                <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed2}" width="90" style="border-radius: 50%; border: 4px solid silver; background: white; padding: 2px;">
-                <p style="margin: 5px 0 0 0; font-size: 16px;"><b>🥈 {p2}</b></p>
+                <div style="width: 90px; height: 90px; border-radius: 15px; border: 4px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <img src="https://api.dicebear.com/8.x/pixel-art/svg?seed={seed2}" width="70">
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 16px; color: #fff;"><b>🥈 {p2}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts2} pkt</p>
             </div>
+            <!-- Złoto -->
             <div>
-                <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed1}" width="120" style="border-radius: 50%; border: 4px solid gold; background: white; padding: 2px;">
-                <p style="margin: 5px 0 0 0; font-size: 20px;"><b>🥇 {p1}</b></p>
-                <p style="margin: 0; font-size: 15px; color: #ffd700;"><b>{pts1} pkt</b></p>
+                <div style="width: 120px; height: 120px; border-radius: 20px; border: 5px solid #FFD700; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(255,215,0,0.4);">
+                    <img src="https://api.dicebear.com/8.x/pixel-art/svg?seed={seed1}" width="90">
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 20px; color: #fff;"><b>🥇 {p1}</b></p>
+                <p style="margin: 0; font-size: 16px; color: #FFD700;"><b>{pts1} pkt</b></p>
             </div>
+            <!-- Brąz -->
             <div style="margin-bottom: 20px;">
-                <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={seed3}" width="80" style="border-radius: 50%; border: 4px solid #cd7f32; background: white; padding: 2px;">
-                <p style="margin: 5px 0 0 0; font-size: 15px;"><b>🥉 {p3}</b></p>
+                <div style="width: 80px; height: 80px; border-radius: 15px; border: 4px solid #CD7F32; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <img src="https://api.dicebear.com/8.x/pixel-art/svg?seed={seed3}" width="60">
+                </div>
+                <p style="margin: 10px 0 0 0; font-size: 15px; color: #fff;"><b>🥉 {p3}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts3} pkt</p>
             </div>
         </div>
         """
+
         st.markdown(podium_html, unsafe_allow_html=True)
         st.markdown("---")
     
