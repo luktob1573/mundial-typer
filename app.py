@@ -506,7 +506,7 @@ with tab2:
         jokers_left = 3 - len(data.get("jokers", {}).get(player, []))
         odznaki = "".join(user_badges[player])
         
-        # Pasek postępu pod każdym graczem (NOWOŚĆ)
+        # Pasek postępu pod każdym graczem
         postep = pts / max_points
         
         st.markdown(f"##### {medal} {player} {odznaki} ➔ {pts} pkt <span style='font-size: 13px; color: #aaa; font-weight: normal;'>(Jokery: {jokers_left}/3 {lt_info})</span>", unsafe_allow_html=True)
@@ -550,14 +550,15 @@ with tab2:
 
     if any(punkty_dzis.values()):
         st.markdown("---")
-        st.subheader("🎭 Tablica (Wyniki z dziś)")
+        st.subheader("🎭 Podsumowanie Dnia")
         max_pt = max(punkty_dzis.values())
         min_pt = min(punkty_dzis.values())
         najlepsi = [u for u, p in punkty_dzis.items() if p == max_pt and p > 0]
         najgorsi = [u for u, p in punkty_dzis.items() if p == min_pt]
         
-        if najlepsi: st.success(f"🧠 **Znawca Dnia:** {', '.join(najlepsi)} (+{max_pt} pkt!)")
-        if najgorsi and min_pt == 0: st.error(f"🪑 **Kanapa Dnia (0 pkt):** {', '.join(najgorsi)}")
+        # ZMIENIONE NAZWY ZGODNIE Z PROŚBĄ:
+        if najlepsi: st.success(f"🧠 **Znawca Kolejki:** {', '.join(najlepsi)} (+{max_pt} pkt!)")
+        if najgorsi and min_pt == 0: st.error(f"🪑 **Kanapowy Selekcjoner (0 pkt):** {', '.join(najgorsi)}")
 
 # --- TAB 3: ADMIN ---
 with tab3:
@@ -631,6 +632,19 @@ with tab3:
                 save_data(data)
                 st.success("Wyniki zaktualizowane!")
                 st.rerun()
+                
+        st.markdown("---")
+        st.subheader("📱 Przypomnienie WhatsApp (Jutro)")
+        jutrzejsze_mecze = [f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})" for m_id, info in MATCHES.items() if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj]
+                
+        if jutrzejsze_mecze:
+            LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
+            tekst_wa = "⚽ Hej rodzinko! Przypominam o typowaniu JUTRZEJSZYCH meczów! W fazie pucharowej łapiemy dodatkowe punkty za karne (pamiętajcie: karne wchodzą tylko z remisem!). 🥅 Zobaczcie co gramy:\n\n" + "\n".join(jutrzejsze_mecze) + f"\n\nNie przegapcie! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
+            gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
+            st.code(tekst_wa, language="text")
+            st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:bold;width:100%;text-transform:uppercase;">Wyślij przypomnienie na WhatsApp 💬</button></a>', unsafe_allow_html=True)
+        else:
+            st.success("Jutro nie ma meczów.")
             
         st.markdown("---")
         st.subheader("💾 Backup / Awaryjne Kasowanie")
