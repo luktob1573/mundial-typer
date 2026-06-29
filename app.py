@@ -459,34 +459,35 @@ with tab2:
         seed2 = urllib.parse.quote(p2)
         seed3 = urllib.parse.quote(p3)
 
-        podium_html = f"""
+                podium_html = f"""
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
             <!-- Srebro -->
             <div style="margin-bottom: 10px;">
-                <div style="width: 90px; height: 90px; border-radius: 15px; border: 4px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                    <img src="https://api.dicebear.com/8.x/pixel-art/svg?seed={seed2}" width="70">
+                <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center;">
+                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed={seed2}" width="90">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 16px; color: #fff;"><b>🥈 {p2}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts2} pkt</p>
             </div>
             <!-- Złoto -->
             <div>
-                <div style="width: 120px; height: 120px; border-radius: 20px; border: 5px solid #FFD700; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(255,215,0,0.4);">
-                    <img src="https://api.dicebear.com/8.x/pixel-art/svg?seed={seed1}" width="90">
+                <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FFD700; background: #fff; display: flex; align-items: center; justify-content: center;">
+                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed={seed1}" width="110">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 20px; color: #fff;"><b>🥇 {p1}</b></p>
                 <p style="margin: 0; font-size: 16px; color: #FFD700;"><b>{pts1} pkt</b></p>
             </div>
             <!-- Brąz -->
             <div style="margin-bottom: 20px;">
-                <div style="width: 80px; height: 80px; border-radius: 15px; border: 4px solid #CD7F32; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                    <img src="https://api.dicebear.com/8.x/pixel-art/svg?seed={seed3}" width="60">
+                <div style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #CD7F32; background: #fff; display: flex; align-items: center; justify-content: center;">
+                    <img src="https://api.dicebear.com/8.x/notionists/svg?seed={seed3}" width="80">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 15px; color: #fff;"><b>🥉 {p3}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts3} pkt</p>
             </div>
         </div>
         """
+
 
         st.markdown(podium_html, unsafe_allow_html=True)
         st.markdown("---")
