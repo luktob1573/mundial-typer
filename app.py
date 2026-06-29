@@ -459,7 +459,7 @@ with tab2:
         seed2 = urllib.parse.quote(p2)
         seed3 = urllib.parse.quote(p3)
 
-                podium_html = f"""
+        podium_html = f"""
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
             <!-- Srebro -->
             <div style="margin-bottom: 10px;">
