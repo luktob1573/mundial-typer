@@ -17,6 +17,7 @@ HEADERS = {
 
 # --- LISTA GRACZY ---
 GRACZE = ["Wybierz swoje imię...", "Łukasz T", "Natalia", "Łukasz Z", "Babcia Ania", "Dziadek Adam", "Karolina", "Ala", "Asia", "Babcia Asia", "Dziadek Piotrek", "Wiki", "Wojtas",]
+ZENSKIE_IMIONA = ["Natalia", "Babcia Ania", "Karolina", "Ala", "Asia", "Babcia Asia", "Wiki"]
 
 # --- SŁOWNIK FLAG ---
 FLAGS = {
@@ -449,18 +450,15 @@ with tab1:
 with tab2:
     st.header("🏆 Tabela Rodzinna")
     
-        # --- PODIUM ---
+            # --- PODIUM ---
     if len(sorted_leaderboard) >= 3:
         p1, pts1 = sorted_leaderboard[0]
         p2, pts2 = sorted_leaderboard[1]
         p3, pts3 = sorted_leaderboard[2]
         
-        # Definiujemy listę imion żeńskich
-        zenskie_lista = ["Natalia", "Babcia Ania", "Karolina", "Ala", "Asia", "Babcia Asia", "Wiki"]
-        
-        # Definiujemy funkcję używając powyższej listy
         def get_avatar_url(name):
-            prefix = "female" if name in zenskie_lista else "male"
+            # Używamy listy zdefiniowanej na górze pliku
+            prefix = "female" if name in ZENSKIE_IMIONA else "male"
             return f"https://api.dicebear.com/8.x/notionists/svg?seed={urllib.parse.quote(name)}&gender={prefix}"
 
         podium_html = f"""
@@ -490,15 +488,7 @@ with tab2:
         """
         st.markdown(podium_html, unsafe_allow_html=True)
         st.markdown("---")
-
-        st.markdown(podium_html, unsafe_allow_html=True)
-        st.markdown("---")
-
-
-
-        st.markdown(podium_html, unsafe_allow_html=True)
-        st.markdown("---")
-    
+        
     punkty_dzis = {u: 0 for u in GRACZE[1:]}
     
     for user in GRACZE[1:]:
