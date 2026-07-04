@@ -130,6 +130,17 @@ MATCHES = {
     "Australia vs Egipt": {"date": "2026-07-03", "time": "20:00", "home": "Australia", "away": "Egipt"},
     "Argentyna vs Rep. Z. Przyl.": {"date": "2026-07-04", "time": "00:00", "home": "Argentyna", "away": "Rep. Z. Przyl."},
     "Kolumbia vs Ghana": {"date": "2026-07-04", "time": "03:30", "home": "Kolumbia", "away": "Ghana"}
+    
+    # --- ZAKTUALIZOWANA LISTA MECZÓW 1/8 FINAŁU ---
+    "Kanada vs Maroko": {"date": "2026-07-04", "time": "19:00", "home": "Kanada", "away": "Maroko"},
+    "Paragwaj vs Francja": {"date": "2026-07-04", "time": "23:00", "home": "Paragwaj", "away": "Francja"},
+    "Brazylia vs Norwegia": {"date": "2026-07-05", "time": "22:00", "home": "Brazylia", "away": "Norwegia"},
+    "Meksyk vs Anglia": {"date": "2026-07-06", "time": "02:00", "home": "Meksyk", "away": "Anglia"},
+    "Portugalia vs Hiszpania": {"date": "2026-07-06", "time": "21:00", "home": "Portugalia", "away": "Hiszpania"},
+    "USA vs Belgia": {"date": "2026-07-07", "time": "02:00", "home": "USA", "away": "Belgia"},
+    "Argentyna vs Egipt": {"date": "2026-07-07", "time": "18:00", "home": "Argentyna", "away": "Egipt"},
+    "Szwajcaria vs Kolumbia": {"date": "2026-07-07", "time": "22:00", "home": "Szwajcaria", "away": "Kolumbia"}
+
 }
 
 def load_data():
