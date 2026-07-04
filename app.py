@@ -478,11 +478,7 @@ with tab1:
 
 # --- TAB 2: TABELA I STATYSTYKI ---
 with tab2:
-    st.header("🏆 Tabela Rodzinna")
-
-    # Zamiast starych <img src="..."> użyj:
-<img src="{get_avatar_source(p1)}" style="width: 100%; height: 100%; object-fit: cover;">
-
+    st.header("🏆 Tabela Rodzinna") 
     
             # --- PODIUM ---
     if len(sorted_leaderboard) >= 3:
@@ -496,6 +492,10 @@ with tab2:
             return f"https://api.dicebear.com/8.x/notionists/svg?seed={urllib.parse.quote(name)}&gender={prefix}"
 
         podium_html = f"""
+
+        # Zamiast starych <img src="..."> użyj:
+<img src="{get_avatar_source(p1)}" style="width: 100%; height: 100%; object-fit: cover;">
+
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
             <div style="margin-bottom: 10px;">
                 <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
