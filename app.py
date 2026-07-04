@@ -129,7 +129,7 @@ MATCHES = {
     "Szwajcaria vs Algieria": {"date": "2026-07-03", "time": "05:00", "home": "Szwajcaria", "away": "Algieria"},
     "Australia vs Egipt": {"date": "2026-07-03", "time": "20:00", "home": "Australia", "away": "Egipt"},
     "Argentyna vs Rep. Z. Przyl.": {"date": "2026-07-04", "time": "00:00", "home": "Argentyna", "away": "Rep. Z. Przyl."},
-    "Kolumbia vs Ghana": {"date": "2026-07-04", "time": "03:30", "home": "Kolumbia", "away": "Ghana"}
+    "Kolumbia vs Ghana": {"date": "2026-07-04", "time": "03:30", "home": "Kolumbia", "away": "Ghana"},
     
     # --- ZAKTUALIZOWANA LISTA MECZÓW 1/8 FINAŁU ---
     "Kanada vs Maroko": {"date": "2026-07-04", "time": "19:00", "home": "Kanada", "away": "Maroko"},
