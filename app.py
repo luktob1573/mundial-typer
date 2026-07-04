@@ -4,6 +4,25 @@ from datetime import datetime, timedelta
 import pandas as pd
 import json
 import urllib.parse
+import base64
+from io import BytesIO
+from PIL import Image
+
+def image_to_base64(image):
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
+
+def get_avatar_source(name):
+    """Zwraca źródło awatara: Base64 dla wgranego zdjęcia lub URL dla DiceBear."""
+    data = load_data_from_jsonbin() # Twoja istniejąca funkcja
+    avatars = data.get('avatars', {})
+    
+    if name in avatars:
+        return f"data:image/png;base64,{avatars[name]}"
+    else:
+        return f"https://api.dicebear.com/8.x/notionists/svg?seed={urllib.parse.quote(name)}"
+
 
 # --- KONFIGURACJA CHMURY (JSONBin.io) ---
 BIN_ID = "6a280281da38895dfe9ff2d4"
@@ -460,6 +479,10 @@ with tab1:
 # --- TAB 2: TABELA I STATYSTYKI ---
 with tab2:
     st.header("🏆 Tabela Rodzinna")
+
+    # Zamiast starych <img src="..."> użyj:
+<img src="{get_avatar_source(p1)}" style="width: 100%; height: 100%; object-fit: cover;">
+
     
             # --- PODIUM ---
     if len(sorted_leaderboard) >= 3:
@@ -578,6 +601,32 @@ with tab2:
         # ZMIENIONE NAZWY ZGODNIE Z PROŚBĄ:
         if najlepsi: st.success(f"🧠 **Znawca Kolejki:** {', '.join(najlepsi)} (+{max_pt} pkt!)")
         if najgorsi and min_pt == 0: st.error(f"🪑 **Kanapowy Selekcjoner (0 pkt):** {', '.join(najgorsi)}")
+
+        st.subheader("📸 Twój profilowy Awatar")
+st.write("Wgraj swoje zdjęcie, aby zastąpić domyślnego awatara.")
+
+user_name_avatar = st.selectbox("Wybierz swoje imię:", GRACZE, key="avatar_select")
+uploaded_file = st.file_uploader("Wybierz zdjęcie (najlepiej kwadratowe):", type=["jpg", "png", "jpeg"])
+
+if uploaded_file and st.button("Zapisz Awatar na stałe"):
+    try:
+        # Otwórz, zmień rozmiar na 200x200 (oszczędność miejsca w JSONBin)
+        img = Image.open(uploaded_file).convert("RGB")
+        img = img.resize((200, 200))
+        img_b64 = image_to_base64(img)
+        
+        # Pobierz dane, zaktualizuj i zapisz
+        data = load_data_from_jsonbin()
+        if 'avatars' not in data:
+            data['avatars'] = {}
+        data['avatars'][user_name_avatar] = img_b64
+        
+        save_data_to_jsonbin(data)
+        st.success(f"Awatar dla {user_name_avatar} został pomyślnie zaktualizowany!")
+        st.rerun() # Odświeżenie strony, aby pokazać nowy awatar
+    except Exception as e:
+        st.error(f"Wystąpił błąd podczas wgrywania: {e}")
+
 
 # --- TAB 3: ADMIN ---
 with tab3:
