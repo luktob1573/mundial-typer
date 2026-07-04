@@ -499,21 +499,21 @@ with tab2:
         <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; text-align: center; margin-bottom: 40px; margin-top: 20px;">
             <div style="margin-bottom: 10px;">
                 <div style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #C0C0C0; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                    <img src="{get_avatar_url(p2)}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="{get_avatar_source(p2)}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 16px; color: #fff;"><b>🥈 {p2}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts2} pkt</p>
             </div>
             <div>
                 <div style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #FFD700; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                    <img src="{get_avatar_url(p1)}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="{get_avatar_source(p1)}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 20px; color: #fff;"><b>🥇 {p1}</b></p>
                 <p style="margin: 0; font-size: 16px; color: #FFD700;"><b>{pts1} pkt</b></p>
             </div>
             <div style="margin-bottom: 20px;">
                 <div style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #CD7F32; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                    <img src="{get_avatar_url(p3)}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="{get_avatar_source(p3)}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <p style="margin: 10px 0 0 0; font-size: 15px; color: #fff;"><b>🥉 {p3}</b></p>
                 <p style="margin: 0; font-size: 14px; color: #ccc;">{pts3} pkt</p>
@@ -602,32 +602,7 @@ with tab2:
         if najlepsi: st.success(f"🧠 **Znawca Kolejki:** {', '.join(najlepsi)} (+{max_pt} pkt!)")
         if najgorsi and min_pt == 0: st.error(f"🪑 **Kanapowy Selekcjoner (0 pkt):** {', '.join(najgorsi)}")
 
-        st.subheader("📸 Twój profilowy Awatar")
-st.write("Wgraj swoje zdjęcie, aby zastąpić domyślnego awatara.")
-
-user_name_avatar = st.selectbox("Wybierz swoje imię:", GRACZE, key="avatar_select")
-uploaded_file = st.file_uploader("Wybierz zdjęcie (najlepiej kwadratowe):", type=["jpg", "png", "jpeg"])
-
-if uploaded_file and st.button("Zapisz Awatar na stałe"):
-    try:
-        # Otwórz, zmień rozmiar na 200x200 (oszczędność miejsca w JSONBin)
-        img = Image.open(uploaded_file).convert("RGB")
-        img = img.resize((200, 200))
-        img_b64 = image_to_base64(img)
         
-        # Pobierz dane, zaktualizuj i zapisz
-        data = load_data_from_jsonbin()
-        if 'avatars' not in data:
-            data['avatars'] = {}
-        data['avatars'][user_name_avatar] = img_b64
-        
-        save_data_to_jsonbin(data)
-        st.success(f"Awatar dla {user_name_avatar} został pomyślnie zaktualizowany!")
-        st.rerun() # Odświeżenie strony, aby pokazać nowy awatar
-    except Exception as e:
-        st.error(f"Wystąpił błąd podczas wgrywania: {e}")
-
-
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
