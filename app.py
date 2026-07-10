@@ -557,16 +557,19 @@ with tab2:
     history_points = {"Mecz": ["Start"]}
     for user in GRACZE[1:]: history_points[user] = [0]
         
-    for m_id in sorted_match_ids:
-        if m_id in data.get("results", {}):
-            res = data["results"][m_id]
-            res_h, res_a, res_pen = res[0], res[1], res[2] if len(res) > 2 else False
-            # POPRAWIONY KOD
-    if " vs " in m_id:
-    history_points["Mecz"].append(m_id.split(" vs ")[0] + "-" + m_id.split(" vs ")[1])
-    else:
-    # Dla nazw typu "Ćwierćfinał 1" użyje po prostu krótkiej nazwy
-    history_points["Mecz"].append(m_id)
+                # --- POPRAWIONY BLOK WYKRESU FORMY ---
+            for m_id in sorted_match_ids:
+                if m_id in data.get("results", {}):
+                    res = data["results"][m_id]
+                    res_h, res_a, res_pen = res[0], res[1], res[2] if len(res) > 2 else False
+                    
+                    # Tutaj jest poprawka z wcięciem:
+                    if " vs " in m_id:
+                        history_points["Mecz"].append(m_id.split(" vs ")[0] + "-" + m_id.split(" vs ")[1])
+                    else:
+                        history_points["Mecz"].append(m_id)
+                    
+                    
 
     for user in GRACZE[1:]:
                 user_bets = data.get("bets", {}).get(user, {})
