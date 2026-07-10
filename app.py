@@ -552,37 +552,37 @@ with tab2:
         * 🛡️ **Ekspert Defensywy:** Wytypował min. 3 razy wynik 0:0.
         """)
         
-    # --- WYKRES FORMY ---
+        # --- WYKRES FORMY ---
     sorted_match_ids = sorted(MATCHES.keys(), key=lambda m: f"{MATCHES[m]['date']} {MATCHES[m]['time']}")
     history_points = {"Mecz": ["Start"]}
-    for user in GRACZE[1:]: history_points[user] = [0]
+    for user in GRACZE[1:]: 
+        history_points[user] = [0]
         
-                # --- POPRAWIONY BLOK WYKRESU FORMY ---
-            for m_id in sorted_match_ids:
-                if m_id in data.get("results", {}):
-                    res = data["results"][m_id]
-                    res_h, res_a, res_pen = res[0], res[1], res[2] if len(res) > 2 else False
-                    
-                    # Tutaj jest poprawka z wcięciem:
-                    if " vs " in m_id:
-                        history_points["Mecz"].append(m_id.split(" vs ")[0] + "-" + m_id.split(" vs ")[1])
-                    else:
-                        history_points["Mecz"].append(m_id)
-                    
-                    
-
-    for user in GRACZE[1:]:
+    for m_id in sorted_match_ids:
+        if m_id in data.get("results", {}):
+            res = data["results"][m_id]
+            res_h, res_a, res_pen = res[0], res[1], res[2] if len(res) > 2 else False
+            
+            # Bezpieczne dodawanie nazwy meczu
+            if " vs " in m_id:
+                history_points["Mecz"].append(m_id.split(" vs ")[0][:5] + "-" + m_id.split(" vs ")[1][:5])
+            else:
+                history_points["Mecz"].append(m_id[:8])
+            
+            for user in GRACZE[1:]:
                 user_bets = data.get("bets", {}).get(user, {})
                 last_pts = history_points[user][-1]
                 if m_id in user_bets:
                     bet = user_bets[m_id]
                     bet_h, bet_a, bet_pen = bet[0], bet[1], bet[2] if len(bet) > 2 else False
                     pts_gained = calculate_points(bet_h, bet_a, res_h, res_a, bet_pen, res_pen)
-                    if m_id in data.get("jokers", {}).get(user, []): pts_gained *= 2
+                    if m_id in data.get("jokers", {}).get(user, []): 
+                        pts_gained *= 2
                     history_points[user].append(last_pts + pts_gained)
                 else:
                     history_points[user].append(last_pts)
                     
+    
     if len(history_points["Mecz"]) > 1:
         st.markdown("---")
         st.subheader("📈 Wykres Formy")
