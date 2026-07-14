@@ -145,15 +145,13 @@ MATCHES = {
     "Ćwierćfinał 2": {"date": "2026-07-10", "time": "21:00", "home": "Hiszpania", "away": "Belgia"},
     "Ćwierćfinał 3": {"date": "2026-07-11", "time": "23:00", "home": "Norwegia", "away": "Anglia"},
     "Ćwierćfinał 4": {"date": "2026-07-12", "time": "03:00", "home": "Argentyna", "away": "Szwajcaria"},
-
     # --- FAZA PÓŁFINAŁOWA ---
-    "Półfinał 1": {"date": "2026-07-14", "time": "21:00", "home": "Zwycięzca ĆF1", "away": "Zwycięzca ĆF2"},
-    "Półfinał 2": {"date": "2026-07-15", "time": "21:00", "home": "Zwycięzca ĆF3", "away": "Zwycięzca ĆF4"},
+    "Półfinał 1": {"date": "2026-07-14", "time": "21:00", "home": "Francja", "away": "Hiszpania"},
+    "Półfinał 2": {"date": "2026-07-15", "time": "21:00", "home": "Anglia", "away": "Argentyna"},
 
     # --- FINAŁY ---
     "Mecz o 3. miejsce": {"date": "2026-07-18", "time": "23:00", "home": "Przegrany PF1", "away": "Przegrany PF2"},
     "Finał": {"date": "2026-07-19", "time": "21:00", "home": "Zwycięzca PF1", "away": "Zwycięzca PF2"}
-    
 
 }
 
