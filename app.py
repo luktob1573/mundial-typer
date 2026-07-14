@@ -672,16 +672,28 @@ with tab3:
                 st.success("Wyniki zaktualizowane!")
                 st.rerun()
                 
-        st.markdown("---")
-        st.subheader("📱 Przypomnienie WhatsApp (Jutro)")
-        jutrzejsze_mecze = [f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})" for m_id, info in MATCHES.items() if datetime.strptime(info["date"], "%Y-%m-%d").date() == jutro_obj]
-                
+                st.markdown("---")
+        st.subheader("📱 Przypomnienie WhatsApp")
+        
+        # Pobieranie meczów na dzisiaj i jutro
+        dzisiaj_str = czas_polska.strftime("%Y-%m-%d")
+        jutro_str = (czas_polska + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        dzisiejsze_mecze = [f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})" for m_id, info in MATCHES.items() if info['date'] == dzisiaj_str]
+        jutrzejsze_mecze = [f"🔸 {info['home']} vs {info['away']} (⏰ {info['time']})" for m_id, info in MATCHES.items() if info['date'] == jutro_str]
+        
+        tekst_wa = "⚽ Hej rodzinko! Przypominam o typowaniu! 🏟️\n\n"
+        
+        if dzisiejsze_mecze:
+            tekst_wa += "👉 MECZE DZISIAJ:\n" + "\n".join(dzisiejsze_mecze) + "\n\n"
         if jutrzejsze_mecze:
-            LINK_DO_APLIKACJI = "https://rodzinka.streamlit.app/" 
-            tekst_wa = "⚽ Hej rodzinko! Przypominam o typowaniu JUTRZEJSZYCH meczów! W fazie pucharowej łapiemy dodatkowe punkty za karne (pamiętajcie: karne wchodzą tylko z remisem!). 🥅 Zobaczcie co gramy:\n\n" + "\n".join(jutrzejsze_mecze) + f"\n\nNie przegapcie! ⏳\nLink do naszej apki: {LINK_DO_APLIKACJI}"
-            gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
-            st.code(tekst_wa, language="text")
-            st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:bold;width:100%;text-transform:uppercase;">Wyślij przypomnienie na WhatsApp 💬</button></a>', unsafe_allow_html=True)
+            tekst_wa += "👉 MECZE JUTRO:\n" + "\n".join(jutrzejsze_mecze) + "\n\n"
+            
+        tekst_wa += "Pamiętajcie o Jokerach i rzutach karnych! 🥅\n\nLink do naszej apki: https://rodzinka.streamlit.app/"
+        
+        gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
+        st.code(tekst_wa, language="text")
+        st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:bold;width:100%;text-transform:uppercase;">Wyślij przypomnienie na WhatsApp 💬</button></a>', unsafe_allow_html=True)
         else:
             st.success("Jutro nie ma meczów.")
             
