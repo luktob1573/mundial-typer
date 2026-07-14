@@ -694,9 +694,7 @@ with tab3:
         gotowy_link = f"https://wa.me/?text={urllib.parse.quote(tekst_wa)}"
         st.code(tekst_wa, language="text")
         st.markdown(f'<a href="{gotowy_link}" target="_blank"><button style="background-color:#25D366;color:white;border:none;padding:10px 20px;border-radius:20px;cursor:pointer;font-weight:bold;width:100%;text-transform:uppercase;">Wyślij przypomnienie na WhatsApp 💬</button></a>', unsafe_allow_html=True)
-        else:
-            st.success("Jutro nie ma meczów.")
-            
+        
         st.markdown("---")
         st.subheader("💾 Backup / Awaryjne Kasowanie")
         st.download_button("Pobierz kopię JSON 📥", data=json.dumps(data, indent=4), file_name=f"backup_{dzisiaj_obj.strftime('%Y-%m-%d')}.json")
