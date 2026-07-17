@@ -5,6 +5,51 @@ import pandas as pd
 import json
 import urllib.parse
 
+# --- FUNKCJE POMOCNICZE ---
+
+def image_to_base64(image):
+    # ... (Twój istniejący kod) ...
+
+def load_data_from_jsonbin():
+    # ... (Twój istniejący kod) ...
+
+# TUTAJ WKLEJ KOD DLA PDF:
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import io
+
+def generuj_dyplom_pdf(user, tytul, punkty):
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    # Rejestracja czcionki (musi być w tym samym folderze co app.py)
+    pdfmetrics.registerFont(TTFont('DejaVu', 'DejaVuSans.ttf'))
+    
+    # Dodanie tła (musi być w tym samym folderze co app.py)
+    c.drawImage("dyplom_tlo.jpg", 0, 0, width=width, height=height)
+    
+    # Dodanie tekstu
+    c.setFont("DejaVu-Bold", 30)
+    c.drawCentredString(width/2, height - 200, "DYPLOM EKSPERTA")
+    
+    c.setFont("DejaVu", 20)
+    c.drawCentredString(width/2, height - 260, f"Dla: {user}")
+    
+    c.setFont("DejaVu", 18) # Zmienione z Oblique, jeśli nie masz pliku fontu Oblique
+    c.drawCentredString(width/2, height - 350, tytul)
+    
+    c.setFont("DejaVu", 16)
+    c.drawCentredString(width/2, height - 400, f"Wynik: {punkty} punktów")
+    
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    return buffer
+    
+
 # --- KONFIGURACJA CHMURY (JSONBin.io) ---
 BIN_ID = "6a280281da38895dfe9ff2d4"
 API_KEY = "$2a$10$uxF0zHyUt65VVUdDqrOA/uCLX1CqedIR3aQhj56qJ9pgSAnMzFyZm"
@@ -598,7 +643,17 @@ with tab2:
         # ZMIENIONE NAZWY ZGODNIE Z PROŚBĄ:
         if najlepsi: st.success(f"🧠 **Znawca Kolejki:** {', '.join(najlepsi)} (+{max_pt} pkt!)")
         if najgorsi and min_pt == 0: st.error(f"🪑 **Kanapowy Selekcjoner (0 pkt):** {', '.join(najgorsi)}")
-
+       
+       
+# W pętli po użytkownikach:
+        pdf_data = generuj_dyplom_pdf(user, tytul, total_pts)
+        st.download_button(
+            label=f"📥 Pobierz Dyplom dla {user}",
+            data=pdf_data,
+            file_name=f"Dyplom_{user}.pdf",
+            mime="application/pdf"
+        )
+        
 # --- TAB 3: ADMIN ---
 with tab3:
     st.header("⚙️ Panel Administratora")
