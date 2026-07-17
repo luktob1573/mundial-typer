@@ -5,13 +5,6 @@ import pandas as pd
 import json
 import urllib.parse
 
-# --- FUNKCJE POMOCNICZE ---
-
-def image_to_base64(image):
-    # ... (Twój istniejący kod) ...
-
-def load_data_from_jsonbin():
-    # ... (Twój istniejący kod) ...
 
 # TUTAJ WKLEJ KOD DLA PDF:
 from reportlab.lib.pagesizes import A4
